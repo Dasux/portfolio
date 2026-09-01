@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Amateur Experimental Rocketry</title>
+  <title>RHEL Workstation Deployment, Cadence EDA Environment Setup & Large-Scale Clonezilla Replication</title>
   <link rel="stylesheet" href="project-style2.css">
 </head>
 <body>
@@ -31,11 +30,11 @@
   <aside class="toc-panel" aria-label="Table of contents">
     <div class="toc-label">table of contents</div>
     <div class="toc-tree">
-      <div class="toc-root">rocketry/</div>
+      <div class="toc-root">rhel-cadence-clonezilla/</div>
       <a href="#overview">├── overview</a>
       <a href="#architecture">├── architecture</a>
-      <a href="#hardware">├── hardware</a>
-      <a href="#software">├── software</a>
+      <a href="#environment">├── environment</a>
+      <a href="#deployment">├── deployment</a>
       <a href="#challenges">├── challenges</a>
       <a href="#results">├── results</a>
       <a href="#lessons">└── lessons</a>
@@ -46,7 +45,7 @@
   <main class="project-container">
     <div class="project-intro">
       <div class="eyebrow"><span class="status-dot"></span>project documentation</div>
-      <h1>Amateur Experimental Rocketry</h1>
+      <h1>RHEL Workstation Deployment, Cadence EDA Environment Setup & Large-Scale Clonezilla Replication</h1>
     </div>
 
     <div class="project-sections">
@@ -57,11 +56,13 @@
         </div>
         <div class="section-copy">
           <p>
-            What is this project about? <br><br>
-            This is an amateur rocketry project where I designed, built, and
-            launched experimental rockets equipped with custom telemetry systems.
-            The goal was to gather flight data and analyze rocket performance using
-            onboard sensors and a ground station. <br><br>
+            During my internship, I worked on preparing a Linux-based semiconductor design laboratory for a chip-design workshop. The lab consisted of more than 30 workstations that needed a consistent Red Hat Enterprise Linux environment capable of running a Cadence EDA toolchain for Verilog and RTL-oriented workflows.
+          </p>
+          <div class="image-placeholder image-right">
+            <!-- IMAGE PLACEHOLDER: RHEL workstation / semiconductor laboratory setup -->
+          </div>
+          <p>
+            The work quickly became a systems deployment problem rather than a simple software installation task. Each workstation needed the operating system, dependencies, Cadence tools, shell environment, network identity, users, groups, permissions, and supporting configuration files to behave consistently. The first phase focused on building a correct workstation; the second phase focused on reproducing that validated workstation reliably across the laboratory.
           </p>
         </div>
       </section>
@@ -72,34 +73,73 @@
           <h2>System Architecture</h2>
         </div>
         <div class="section-copy">
-          <p>Explain data flow, subsystems, and control logic.</p>
-        </div>
-      </section>
-
-      <section id="hardware" class="project-section">
-        <div class="section-heading">
-          <span class="section-number">03</span>
-          <h2>Hardware</h2>
-        </div>
-        <div class="section-copy">
+          <p>
+            The architecture evolved over time. Initially, the work centered on one workstation at a time: install RHEL, configure the OS, install Cadence components, establish the shell environment, validate tool execution, and document the result. Once a known-good system existed, that workstation became the reference machine for the larger deployment workflow.
+          </p>
+          <div class="image-placeholder image-left">
+            <!-- IMAGE PLACEHOLDER: Architecture diagram from reference workstation to Clonezilla deployment clients -->
+          </div>
+          <p>
+            In the replication phase, the reference workstation provided the complete source state: RHEL, filesystem layout, Cadence installation, users, groups, permissions, environment files, and network-related configuration. A Clonezilla deployment server provided the PXE boot environment and Clonezilla Live Lite workflow. Target machines booted over the network as PXE clients, entered the Clonezilla environment, and were intended to receive a disk-level deployment through multicast or raw/device-oriented restoration.
+          </p>
           <ul>
-            <li>ESP32</li>
-            <li>IMU</li>
-            <li>LoRa</li>
+            <li>Reference workstation: the validated source system containing the complete RHEL and Cadence environment.</li>
+            <li>Deployment server: the Clonezilla Live Lite and PXE orchestration point responsible for distributing client instructions and the restoration workflow.</li>
+            <li>PXE clients: target workstations that boot into Clonezilla, identify their local storage device, and participate in the deployment.</li>
           </ul>
         </div>
       </section>
 
-      <section id="software" class="project-section">
+      <section id="environment" class="project-section">
         <div class="section-heading">
-          <span class="section-number">04</span>
-          <h2>Software</h2>
+          <span class="section-number">03</span>
+          <h2>Workstation & Software Environment</h2>
         </div>
         <div class="section-copy">
+          <p>
+            The workstation build began with RHEL installation and system preparation. That included installing required dependencies and libraries, configuring the operating system for the laboratory environment, and verifying that the machines could support the EDA stack rather than only completing the base OS install.
+          </p>
+          <div class="image-placeholder image-right">
+            <!-- IMAGE PLACEHOLDER: Cadence environment terminal configuration / shell setup -->
+          </div>
+          <p>
+            The Cadence environment included GENUS, INCISIVE, FOUNDRY, and ASSURA. The setup required more than placing binaries on disk: executable paths, environment variables, library paths, supporting configuration files, and shell initialization had to be arranged so users could invoke the tools consistently. Files such as <code>.cshrc</code> were part of the user environment, while system files such as <code>/etc/hosts</code> supported hostname and network identity requirements.
+          </p>
+          <div class="image-placeholder image-left">
+            <!-- IMAGE PLACEHOLDER: User/group/filesystem permission configuration notes or terminal output -->
+          </div>
+          <p>
+            User, group, UID, GID, ownership, and permission behavior also mattered. Some account and group changes had filesystem implications because Linux permissions are tied to numeric identities, not just displayed usernames. A username or GID change could leave files inaccessible or apparently owned by a different account unless ownership and group membership were kept consistent with the intended laboratory configuration.
+          </p>
+        </div>
+      </section>
+
+      <section id="deployment" class="project-section">
+        <div class="section-heading">
+          <span class="section-number">04</span>
+          <h2>Deployment & Automation</h2>
+        </div>
+        <div class="section-copy">
+          <p>
+            After the manual workstation build had been configured, tested, and documented, it became clear that repeating the same process across more than 30 machines would not scale well. The validated reference workstation changed the problem: instead of asking how to install every component again, the goal became how to reproduce the complete known-good system state.
+          </p>
+          <div class="image-placeholder image-right">
+            <!-- IMAGE PLACEHOLDER: Validated reference workstation before replication -->
+          </div>
+          <p>
+            I moved into a Clonezilla-based deployment workflow using PXE netboot and Clonezilla Live Lite. The intended deployment was network-driven: target workstations boot into Clonezilla over the network, receive client-side instructions, and restore the reference system at disk level. This approach is meant to preserve the operating system, filesystem, installed Cadence environment, users, permissions, configuration files, and other machine state rather than reinstalling individual packages by hand.
+          </p>
+          <div class="image-placeholder image-left">
+            <!-- IMAGE PLACEHOLDER: Clonezilla Live Lite / PXE deployment server setup -->
+          </div>
+          <p>
+            Scale shaped the design. Clonezilla massive deployment and multicast were investigated so multiple machines could receive the same source stream instead of transferring a full independent copy of the workstation state to each target. I also investigated raw/device-oriented deployment, including Clonezilla's <code>raw-psdo</code> pseudo-device representation, client-side <code>ocs-sr</code>, and the distinction between restoring from an image repository and restoring from a device-oriented source.
+          </p>
           <ul>
-            <li>Firmware (C++)</li>
-            <li>Ground Station (Tkinter)</li>
-            <li>MATLAB Analysis</li>
+            <li>Manual RHEL and Cadence setup produced the validated reference workstation.</li>
+            <li>Clonezilla Live Lite and PXE shifted the process from local installation to network boot and orchestration.</li>
+            <li>Massive deployment and multicast addressed the need to distribute one workstation state across many machines.</li>
+            <li>Raw/device-oriented restoration focused on reproducing the source disk state, not just copying application files.</li>
           </ul>
         </div>
       </section>
@@ -110,7 +150,28 @@
           <h2>Challenges</h2>
         </div>
         <div class="section-copy">
-          <p>What went wrong, what you fixed, what you learned.</p>
+          <p>
+            The first phase required troubleshooting missing dependencies, library compatibility, executable paths, shell environment problems, filesystem permissions, configuration differences between machines, and Cadence tool invocation failures. The issues were rarely isolated to one package; they came from the interaction between RHEL, the filesystem, shell initialization, users, groups, networking, and the EDA toolchain.
+          </p>
+          <div class="image-placeholder image-right">
+            <!-- IMAGE PLACEHOLDER: Clonezilla deployment/testing session with PXE clients -->
+          </div>
+          <p>
+            The Clonezilla phase exposed a different class of problems. Some target machines rejected the PXE boot image due to firmware Secure Boot or authentication configuration, so deployment reliability depended partly on client firmware state. Once clients entered Clonezilla, failures around <code>ocs-client-run.conf</code> showed that the problem was not only disk restoration; the Live Lite orchestration layer also had to generate and deliver the correct client-side instructions.
+          </p>
+          <div class="image-placeholder image-left">
+            <!-- IMAGE PLACEHOLDER: Block-device / NVMe troubleshooting on Clonezilla client -->
+          </div>
+          <p>
+            Block-device naming became a major debugging point. Clonezilla-generated commands assumed a target such as <code>sda</code>, while target machines exposed NVMe storage as <code>/dev/nvme0n1</code> or <code>/dev/nvme1n1</code>. Simply replacing <code>sda</code> in a server-side command was not enough, because the server and client have different device namespaces. A disk visible inside the PXE-booted client environment is not necessarily visible to the deployment server.
+          </p>
+          <p>
+            The investigation included commands and modes such as <code>restoredisk</code>, <code>multicast_restoredisk</code>, <code>from-device</code>, <code>from-image</code>, <code>raw-psdo</code>, and client-side <code>ocs-sr</code>. A representative generated operation had the shape:
+          </p>
+          <pre><code>ocs-sr ... multicast_restoredisk "raw-psdo-..." sda</code></pre>
+          <p>
+            That command helped separate the source representation, multicast restoration mode, server orchestration, and target disk selection. To isolate failure domains, I planned direct client-side testing from a Clonezilla TTY so the restoration command could be evaluated independently of the automatic PXE command-generation path.
+          </p>
         </div>
       </section>
 
@@ -120,7 +181,15 @@
           <h2>Results</h2>
         </div>
         <div class="section-copy">
-          <p>Plots, telemetry, images, tests.</p>
+          <p>
+            The project has progressed from manual workstation configuration to a network-based deployment architecture. A standardized RHEL workstation environment was built around the Cadence toolchain, with supporting configuration for dependencies, shell initialization, networking, users, groups, permissions, and filesystem ownership.
+          </p>
+          <div class="image-placeholder image-right">
+            <!-- IMAGE PLACEHOLDER: Final intended deployment architecture / reproducible pipeline diagram -->
+          </div>
+          <p>
+            The replication phase is still being developed and debugged. Clonezilla Live Lite, PXE boot, massive deployment, multicast, raw/device-oriented restoration, <code>raw-psdo</code>, <code>ocs-client-run.conf</code>, and target block-device identification have been investigated as parts of the deployment pipeline. The current value of the work is not a fabricated claim that all machines have already been deployed; it is the movement from a validated reference workstation toward a reproducible deployment process, with the remaining technical problems isolated into firmware boot, orchestration, source representation, multicast behavior, and client-side storage identification.
+          </p>
         </div>
       </section>
 
@@ -130,14 +199,22 @@
           <h2>What I Learned</h2>
         </div>
         <div class="section-copy">
-          <p>Growth section = recruiter bait.</p>
+          <p>
+            This project taught me to think about Linux workstations as complete systems rather than collections of installed packages. Reproducibility depended on OS configuration, shell startup files, executable paths, library dependencies, user identities, group membership, ownership, permissions, hostnames, and network configuration all matching the expected workflow.
+          </p>
+          <p>
+            The Clonezilla phase added another layer: PXE booting, client/server orchestration, multicast distribution, disk-level deployment, block-device naming, and the difference between server and client device namespaces. The main engineering lesson was to debug layered systems by separating failure domains: firmware boot, network boot, client configuration delivery, restoration command construction, source-device representation, and target-disk resolution.
+          </p>
+          <p>
+            I also learned that documentation can be part of the deployment infrastructure. The technical manual grew beyond a short internship report because the system needed a reproducible reference for RHEL installation, Cadence setup, environment configuration, permission management, troubleshooting, and the transition toward Clonezilla-based replication.
+          </p>
         </div>
       </section>
     </div>
 
     <div class="source-code">
-      <a href="https://github.com/Dasux/blog" target="_blank" rel="noreferrer">
-        Source Code <span aria-hidden="true">-&gt;</span>
+      <a href="reference.md">
+        Project Reference <span aria-hidden="true">-&gt;</span>
       </a>
     </div>
   </main>
