@@ -62,7 +62,7 @@
 		  <img src="../assets/manthan2_3.jpeg" alt="Manthan 2">
           </figure>
           <p>
-            The work quickly became a systems deployment problem rather than a simple software installation task. Each workstation needed the operating system, dependencies, Cadence tools, shell environment, network identity, users, groups, permissions, and supporting configuration files to behave consistently. The first phase focused on building a correct workstation; the second phase focused on reproducing that validated workstation reliably across the laboratory.
+		The work quickly became a systems deployment problem rather than a simple software installation task. Each workstation needed the operating system, dependencies, Cadence tools, shell environment, network identity, users, groups, permissions, and supporting configuration files to behave consistently. The first phase focused on building a correct workstation; the second phase focused on reproducing that validated workstation reliably across the laboratory. All this was done under the guidance of <a href="https://www.linkedin.com/in/prasiddh-trivedi-2b212a3b/">Dr. Prasiddh Trivedi, Assistant Professor, GSV.</a>
           </p>
         </div>
       </section>
@@ -81,13 +81,11 @@
           </figure>
 	  <br>
           <p>
-            In the replication phase, the reference workstation provided the complete source state: RHEL, filesystem layout, Cadence installation, users, groups, permissions, environment files, and network-related configuration. A Clonezilla deployment server provided the PXE boot environment and Clonezilla Live Lite workflow. Target machines booted over the network as PXE clients, entered the Clonezilla environment, and were intended to receive a disk-level deployment through multicast or raw/device-oriented restoration.
+            User, group, UID, GID, ownership, and permission behavior also mattered. Some account and group changes had filesystem implications because Linux permissions are tied to numeric identities, not just displayed usernames. A username or GID change could leave files inaccessible or apparently owned by a different account unless ownership and group membership were kept consistent with the intended laboratory configuration. 
           </p>
-          <ul>
-            <li>Reference workstation: the validated source system containing the complete RHEL and Cadence environment.</li>
-            <li>Deployment server: the Clonezilla Live Lite and PXE orchestration point responsible for distributing client instructions and the restoration workflow.</li>
-            <li>PXE clients: target workstations that boot into Clonezilla, identify their local storage device, and participate in the deployment.</li>
-          </ul>
+
+	  <br> 
+	  
         </div>
       </section>
 
@@ -113,10 +111,8 @@
               <!-- IMAGE PLACEHOLDER: User/group/filesystem permission configuration notes or terminal output -->
             </div>
           </figure>
-          <p>
-            User, group, UID, GID, ownership, and permission behavior also mattered. Some account and group changes had filesystem implications because Linux permissions are tied to numeric identities, not just displayed usernames. A username or GID change could leave files inaccessible or apparently owned by a different account unless ownership and group membership were kept consistent with the intended laboratory configuration.
-          </p>
-        </div>
+	  <!--add something here-->   
+	</div>
       </section>
 
       <section id="deployment" class="project-section">
@@ -128,11 +124,25 @@
           <p>
             After the manual workstation build had been configured, tested, and documented, it became clear that repeating the same process across more than 30 machines would not scale well. The validated reference workstation changed the problem: instead of asking how to install every component again, the goal became how to reproduce the complete known-good system state.
           </p>
+	  <br>
+	  <p>
+            In the replication phase, the reference workstation provided the complete source state: RHEL, filesystem layout, Cadence installation, users, groups, permissions, environment files, and network-related configuration. A Clonezilla deployment server provided the PXE boot environment and Clonezilla Live Lite workflow. Target machines booted over the network as PXE clients, entered the Clonezilla environment, and were intended to receive a disk-level deployment through multicast or raw/device-oriented restoration.
+          </p>
+          <ul>
+            <li>Reference workstation: the validated source system containing the complete RHEL and Cadence environment.</li>
+            <li>Deployment server: the Clonezilla Live Lite and PXE orchestration point responsible for distributing client instructions and the restoration workflow.</li>
+            <li>PXE clients: target workstations that boot into Clonezilla, identify their local storage device, and participate in the deployment.</li>
+          </ul>
+
+	  <br>
+
           <p>
             I moved into a Clonezilla-based deployment workflow using PXE netboot and Clonezilla Live Lite. The intended deployment was network-driven: target workstations boot into Clonezilla over the network, receive client-side instructions, and restore the reference system at disk level. This approach is meant to preserve the operating system, filesystem, installed Cadence environment, users, permissions, configuration files, and other machine state rather than reinstalling individual packages by hand.
           </p>
           <figure class="project-media media-center" style="--media-scale: 1; --media-height: 15rem;">
 		  <img src="../assets/clonezilla.png" alt="Flowchart">
+
+  <figcaption> High-Level Abstraction Diagram of Massive Deployment Workflow using Clonezilla Live Lite </figcaption>
           </figure>
           <p>
             Scale shaped the design. Clonezilla massive deployment and multicast were investigated so multiple machines could receive the same source stream instead of transferring a full independent copy of the workstation state to each target. I also investigated raw/device-oriented deployment, including Clonezilla's <code>raw-psdo</code> pseudo-device representation, client-side <code>ocs-sr</code>, and the distinction between restoring from an image repository and restoring from a device-oriented source.
@@ -146,40 +156,136 @@
         </div>
       </section>
 
-      <section id="challenges" class="project-section">
-        <div class="section-heading">
-          <span class="section-number">05</span>
-          <h2>Challenges</h2>
-        </div>
-        <div class="section-copy">
-          <p>
-            The first phase required troubleshooting missing dependencies, library compatibility, executable paths, shell environment problems, filesystem permissions, configuration differences between machines, and Cadence tool invocation failures. The issues were rarely isolated to one package; they came from the interaction between RHEL, the filesystem, shell initialization, users, groups, networking, and the EDA toolchain.
-          </p>
-          <figure class="project-media media-right" style="--media-scale: 0.42; --media-height: 14rem;">
-            <div class="media-frame media-placeholder">
-              <!-- IMAGE PLACEHOLDER: Clonezilla deployment/testing session with PXE clients -->
-            </div>
-          </figure>
-          <p>
-            The Clonezilla phase exposed a different class of problems. Some target machines rejected the PXE boot image due to firmware Secure Boot or authentication configuration, so deployment reliability depended partly on client firmware state. Once clients entered Clonezilla, failures around <code>ocs-client-run.conf</code> showed that the problem was not only disk restoration; the Live Lite orchestration layer also had to generate and deliver the correct client-side instructions.
-          </p>
-          <figure class="project-media media-left" style="--media-scale: 0.42; --media-height: 14rem;">
-            <div class="media-frame media-placeholder">
-              <!-- IMAGE PLACEHOLDER: Block-device / NVMe troubleshooting on Clonezilla client -->
-            </div>
-          </figure>
-          <p>
-            Block-device naming became a major debugging point. Clonezilla-generated commands assumed a target such as <code>sda</code>, while target machines exposed NVMe storage as <code>/dev/nvme0n1</code> or <code>/dev/nvme1n1</code>. Simply replacing <code>sda</code> in a server-side command was not enough, because the server and client have different device namespaces. A disk visible inside the PXE-booted client environment is not necessarily visible to the deployment server.
-          </p>
-          <p>
-            The investigation included commands and modes such as <code>restoredisk</code>, <code>multicast_restoredisk</code>, <code>from-device</code>, <code>from-image</code>, <code>raw-psdo</code>, and client-side <code>ocs-sr</code>. A representative generated operation had the shape:
-          </p>
-          <pre><code>ocs-sr ... multicast_restoredisk "raw-psdo-..." sda</code></pre>
-          <p>
-            That command helped separate the source representation, multicast restoration mode, server orchestration, and target disk selection. To isolate failure domains, I planned direct client-side testing from a Clonezilla TTY so the restoration command could be evaluated independently of the automatic PXE command-generation path.
-          </p>
-        </div>
-      </section>
+<section id="challenges" class="project-section">
+  <div class="section-heading">
+    <span class="section-number">05</span>
+    <h2>Challenges</h2>
+  </div>
+
+  <div class="section-copy">
+
+<p>
+  The first phase required troubleshooting missing dependencies, library compatibility, executable paths, shell environment problems, filesystem permissions, configuration differences between machines, and Cadence tool invocation failures. The issues were rarely isolated to one package; they came from the interaction between RHEL, the filesystem, shell initialization, users, groups, networking, and the EDA toolchain.
+</p>
+
+<br>
+
+<p>
+  The Clonezilla phase exposed a different class of problems. Some target machines rejected the PXE boot image due to firmware Secure Boot or authentication configuration, so deployment reliability depended partly on client firmware state. Once clients entered Clonezilla, failures around <code>ocs-client-run.conf</code> showed that the problem was not only disk restoration; the Live Lite orchestration layer also had to generate and deliver the correct client-side instructions.
+</p>
+
+<figure class="project-media media-left" style="--media-scale: 0.42; --media-height: 14rem;">
+  <img src="../assets/linux2.jpeg">
+  <figcaption> Error on client machine due to missing disk "sda" </figcaption>
+</figure>
+
+<p>
+  Block-device naming became a major debugging point. Clonezilla-generated commands assumed a target such as <code>sda</code>, while target machines exposed NVMe storage as <code>/dev/nvme0n1</code> or <code>/dev/nvme1n1</code>. Simply replacing <code>sda</code> in a server-side command was not enough, because the server and client have different device namespaces. A disk visible inside the PXE-booted client environment is not necessarily visible to the deployment server.
+</p>
+
+<p>
+  The investigation included commands and modes such as <code>restoredisk</code>, <code>multicast_restoredisk</code>, <code>from-device</code>, <code>from-image</code>, <code>raw-psdo</code>, and client-side <code>ocs-sr</code>. A representative generated operation had the shape:
+</p>
+
+<br>
+
+<p>The server side command was:</p>
+
+<pre><code>ocs-live-feed-img -cbm netboot -dm auto-detect -lscm massive-deployment -mdst from-device -cdt disk-2-mdisks -bsdf sfsck -g auto -e1 auto -2 -x -j2 -edio -k0 -p poweroff -md multicast --clients-to-wait 3 --max-time-to-wait 300 start "sda" sda</code></pre>
+
+<br>
+
+<p>The corresponding client side command to restore was:</p>
+
+<pre><code>ocs-sr ... multicast_restoredisk "raw-psdo-..." sda</code></pre>
+
+<br>
+
+<h3>The Main Issue</h3>
+
+<p>
+  The important part of the server-side command was the final <code>sda</code> argument:
+  <code>start "sda" sda</code>. This was being interpreted as the target block device for the deployment operation.  The problem was that <code>sda</code> described the block-device naming on the machine from which the deployment was being initiated, while the actual target machines did not expose their primary disk as <code>sda</code> at all.
+</p>
+
+<figure class="project-media media-right" style="--media-scale: 0.42; --media-height: 14rem;">
+  <img src="../assets/linux3.jpeg">
+  <figcaption> Server Machine fdisk output </figcaption>
+</figure>
+
+<p>
+  On the target machines, the primary NVMe drive appeared as <code>/dev/nvme1n1</code> (and on some machines as <code>/dev/nvme0n1</code>). Therefore, the command was effectively carrying an assumption about the target hardware that was not true.
+</p>
+
+<p>
+  This distinction was easy to miss because the deployment server could see its own disk as <code>/dev/sda</code>, but that device namespace does not carry over to the client. The server and the PXE-booted client are separate machines with separate block-device namespaces.
+</p>
+
+<h3>Trying to Work Around the Device Name</h3>
+
+<p>
+  The first possible solution was to create a symlink so that the expected <code>sda</code> path would point towards the actual NVMe device. This would allow the existing deployment command to continue using <code>sda</code> without changing the rest of the deployment configuration.
+</p>
+
+<p>
+  Another approach was to manually assign or force the target block device to appear as <code>/dev/sda</code>.
+</p>
+
+<p>
+  Both approaches initially looked reasonable, but they were ultimately bad solutions.
+</p>
+
+<p>
+  The reason is that names such as <code>sda</code> are not permanent identifiers for a particular physical disk. Linux assigns these device names according to the devices detected by the system. If a machine does not already have another SATA disk attached, connecting a USB drive or an external HDD can cause that device to appear as <code>/dev/sda</code>.
+</p>
+
+<p>
+  In other words, forcing the NVMe drive to take the name <code>sda</code> would make the deployment depend on an assumption that could change simply because another storage device was connected to the machine.
+</p>
+
+<p>
+  This also meant that the problem was being approached from the wrong direction. Instead of trying to make every target machine conform to the block-device name expected by the original server, it made more sense to use a deployment source whose storage configuration already matched the target machines.
+</p>
+
+<h3>Changing the Deployment Source</h3>
+
+<p>
+  The final solution was therefore to stop cloning directly from the main server.
+</p>
+
+<p>
+  I selected a client machine that had already been successfully cloned from the original hard disk. This machine had the same storage architecture as the remaining clients, with its primary disk exposed as <code>/dev/nvme1n1</code>.
+</p>
+
+<p>
+  Since the remaining client machines shared the same architecture and also used <code>nvme1n1</code>, this machine could act as the new source for the deployment.
+</p>
+
+<pre><code>Original Server / HDD
+      │
+      ▼
+
+Successfully cloned
+client machine
+│
+▼
+Remaining clients
+/dev/nvme1n1</code></pre>
+
+<p>
+  This removed the need to create artificial device mappings or rely on <code>/dev/sda</code> being available on the targets. The source machine and the target machines now followed the same storage layout, which made the generated Clonezilla operations much more predictable.
+</p>
+
+<p>
+  The main lesson from this debugging process was that a block-device name should not be treated as a universal identifier for a disk. <code>/dev/sda</code> does not mean "the primary disk"; it simply means that the operating system currently assigned that device the name <code>sda</code>. NVMe devices use a different naming scheme, and the presence of additional SATA or USB storage can change which device receives a particular <code>sdX</code> name.
+</p>
+
+<p>
+  For this deployment, the reliable solution was therefore not to force the clients to look like the server, but to choose a cloning source whose hardware and block-device layout matched the machines being deployed.
+</p>
+
+  </div>
+</section>
 
       <section id="results" class="project-section">
         <div class="section-heading">
