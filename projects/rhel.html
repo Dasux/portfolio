@@ -76,16 +76,202 @@
           <p>
             The architecture evolved over time. Initially, the work centered on one workstation at a time: install RHEL, configure the OS, install Cadence components, establish the shell environment, validate tool execution, and document the result. Once a known-good system existed, that workstation became the reference machine for the larger deployment workflow.
           </p>
-          <figure class="project-media media-left" style="--media-scale: 0.45;">
-		  <img src="../assets/linux1.jpeg" alt="Linux Setup">
-          </figure>
 	  <br>
           <p>
             User, group, UID, GID, ownership, and permission behavior also mattered. Some account and group changes had filesystem implications because Linux permissions are tied to numeric identities, not just displayed usernames. A username or GID change could leave files inaccessible or apparently owned by a different account unless ownership and group membership were kept consistent with the intended laboratory configuration. 
           </p>
 
 	  <br> 
-	  
+	  <h3>Host Identity and Network Configuration -- <code>/etc/hosts</code></h3>
+
+          <figure class="project-media media-right" style="--media-scale: 0.3;">
+		  <img src="../assets/etchosts.jpeg" alt="Linux Setup">
+          </figure>
+	  <p>
+	  In the laboratory environment, consistent hostname resolution was important for identifying workstations and maintaining predictable communication between systems. The <code>/etc/hosts</code> file provided local hostname resolution independent of an external DNS service, allowing machines to resolve designated laboratory hosts using their assigned names.
+	  </p>
+	  <br>
+	  <h3>Shell Environment -- <code>csh</code> and <code>.cshrc</code></h3>
+
+	  <p>
+	    The Cadence environment used in the laboratory relied on the C shell
+	    (<code>csh</code>) for initialization and tool execution. Although the
+	    underlying operating system could use other shells for general-purpose
+	    administration, the Cadence setup was built around C-shell syntax and
+	    environment configuration. For this reason, users entered a
+	    <code>csh</code> session before launching the EDA tools.
+	  </p>
+
+	  <br>
+
+	  <p>
+	    The user-level <code>.cshrc</code> file acted as the main initialization
+	    point for this environment. When a C-shell session started, the file was
+	    read automatically and used to define the paths, variables, aliases, and
+	    library locations required by the installed Cadence software. This removed
+	    the need to configure the environment manually every time a user logged in.
+	  </p>
+
+	  <br>
+
+	  <p>
+	    In practice, the <code>.cshrc</code> file connected the user session to the
+	    installed EDA toolchain. Executable search paths were extended to include
+	    Cadence binaries, required environment variables were initialized, and
+	    supporting libraries were made visible to the runtime environment. Once the
+	    shell initialization completed successfully, tools such as Genus and the
+	    other installed Cadence components could be launched directly from the
+	    terminal.
+	  </p>
+
+	  <br>
+
+	  <h3>Cadence Environment Configuration</h3>
+
+	  <p>
+	    The Cadence installation itself was only one part of the workstation setup.
+	    The operating system also needed to know where the software was located and
+	    how its executables and supporting libraries should be resolved. This was
+	    handled through environment configuration associated with the C-shell
+	    startup process.
+	  </p>
+
+	  <br>
+
+	  <p>
+	    Variables such as the executable <code>PATH</code>, library search paths,
+	    installation-root references, and licensing-related configuration linked
+	    the shell environment to the corresponding Cadence directories. The exact
+	    values depended on the installed tool version and directory layout, but the
+	    purpose remained the same: create a predictable runtime environment in
+	    which the EDA tools could locate all required binaries, libraries, and
+	    support files.
+	  </p>
+
+	  <br>
+
+	  <p>
+	    This separation between software installation and shell configuration was
+	    important during validation. A tool could be present on disk while still
+	    failing to launch if the corresponding environment variables or library
+	    paths were missing or incorrect. As a result, successful deployment
+	    required validation of both the installed files and the environment used to
+	    invoke them.
+	  </p>
+
+	  <br>
+
+	  <h3>Installation Directory Structure -- <code>/home/install</code></h3>
+
+	  <p>
+	    The main EDA software stack was maintained under a common installation
+	    hierarchy beginning at <code>/home/install</code>. Keeping the software in a
+	    predictable location simplified environment configuration and made it easier
+	    to reproduce the same workstation state across the laboratory.
+	  </p>
+
+	  <br>
+
+	  <p>
+	    Rather than placing application files inside individual user directories,
+	    the installation hierarchy acted as a centralized software location shared
+	    by the configured workstation environment. The C-shell initialization files
+	    could therefore reference a fixed set of paths regardless of which user was
+	    working on the machine.
+	  </p>
+
+	  <br>
+
+	  <pre><code>/home/install/
+├── genus/
+├── incisive/
+├── assura/
+└── foundry/
+└── ...</code></pre>
+
+	  <br>
+
+	  <p>
+	    The exact directory names varied according to the installed release and
+	    tool package, but the overall structure remained consistent: software was
+	    grouped under a known installation root, while user-specific configuration
+	    remained in the corresponding home directory.
+	  </p>
+
+	  <br>
+
+	  <figure class="project-media media-left" style="--media-scale: 0.45;">
+		  <img src="../assets/linux1.jpeg" alt="Linux Setup">
+		  <figcaption>Script that automates group and user ID migration</figcaption>
+          </figure>
+	  <h3>User Environment and Filesystem Ownership</h3>
+
+	  <p>
+	    The laboratory configuration also depended on maintaining a consistent
+	    relationship between user accounts, groups, and filesystem ownership. In
+	    Linux, file ownership is stored using numeric user and group identifiers
+	    rather than only the visible account names. As a result, renaming a user or
+	    modifying group identifiers could affect access to previously created files
+	    and directories.
+	  </p>
+
+	  <br>
+
+	  <p>
+	    During system preparation, user names, group membership, UID values, and GID
+	    values therefore had to remain aligned with the intended laboratory
+	    configuration. Where account information was changed, existing ownership and
+	    permissions also had to be checked so that the configured users retained
+	    access to the Cadence installation, project directories, and supporting
+	    files.
+	  </p>
+
+	  <br>
+
+	  <p>
+	    This became especially important once the workstation was treated as a
+	    reference system. Any incorrect ownership, group assignment, or inaccessible
+	    directory on the reference machine would also be reproduced during later
+	    deployment. The reference workstation therefore had to be validated not
+	    only at the application level, but also at the filesystem and user-account
+	    level.
+	  </p>
+
+	  <br>
+
+	  <h3>Workstation Configuration Layout</h3>
+
+	  <p>
+	    Taken together, the workstation environment can be viewed as several layers
+	    of configuration rather than a single software installation. System-level
+	    files provided host and network identity, user-level shell configuration
+	    prepared the Cadence runtime environment, and the shared installation
+	    hierarchy contained the actual EDA software.
+	  </p>
+
+	  <br>
+
+	  <pre><code>/
+├── etc/
+│   └── hosts                 # local hostname resolution
+│
+└── home/
+    ├── install/              # shared Cadence / EDA installation
+    │   └── .cshrc            # C-shell environment initialization    
+    │
+    └── &lt;user&gt;/
+        </code></pre>
+
+	  <br>
+
+	  <p>
+	    This arrangement made the workstation easier to validate and later easier
+	    to replicate. A functioning system depended on all of these layers being
+	    correct at the same time: host configuration, user identity, filesystem
+	    permissions, shell initialization, environment variables, and the software
+	    installation itself.
+	  </p>
+
         </div>
       </section>
 
