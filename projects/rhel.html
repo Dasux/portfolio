@@ -70,7 +70,7 @@
       <section id="architecture" class="project-section">
         <div class="section-heading">
           <span class="section-number">02</span>
-          <h2>System Architecture</h2>
+          <h2>System Architecture (Workstation & Software Environment)</h2>
         </div>
         <div class="section-copy">
           <p>
@@ -275,31 +275,6 @@
         </div>
       </section>
 
-      <section id="environment" class="project-section">
-        <div class="section-heading">
-          <span class="section-number">03</span>
-          <h2>Workstation & Software Environment</h2>
-        </div>
-        <div class="section-copy">
-          <p>
-            The workstation build began with RHEL installation and system preparation. That included installing required dependencies and libraries, configuring the operating system for the laboratory environment, and verifying that the machines could support the EDA stack rather than only completing the base OS install.
-          </p>
-          <figure class="project-media media-right" style="--media-scale: 0.4; --media-height: 14rem;">
-            <div class="media-frame media-placeholder">
-              <!-- IMAGE PLACEHOLDER: Architecture diagram from reference workstation to Clonezilla deployment clients -->
-            </div>
-          </figure>
-          <p>
-            The Cadence environment included GENUS, INCISIVE, FOUNDRY, and ASSURA. The setup required more than placing binaries on disk: executable paths, environment variables, library paths, supporting configuration files, and shell initialization had to be arranged so users could invoke the tools consistently. Files such as <code>.cshrc</code> were part of the user environment, while system files such as <code>/etc/hosts</code> supported hostname and network identity requirements.
-          </p>
-          <figure class="project-media media-left" style="--media-scale: 0.4; --media-height: 14rem;">
-            <div class="media-frame media-placeholder">
-              <!-- IMAGE PLACEHOLDER: User/group/filesystem permission configuration notes or terminal output -->
-            </div>
-          </figure>
-	  <!--add something here-->   
-	</div>
-      </section>
 
       <section id="deployment" class="project-section">
         <div class="section-heading">
@@ -310,10 +285,17 @@
           <p>
             After the manual workstation build had been configured, tested, and documented, it became clear that repeating the same process across more than 30 machines would not scale well. The validated reference workstation changed the problem: instead of asking how to install every component again, the goal became how to reproduce the complete known-good system state.
           </p>
+<figure class="project-media media-center" style="--media-scale: 1; --media-height: 15rem;">
+		  <img src="../assets/clonezilla3.jpeg" >
+
+          </figure>
+
 	  <br>
 	  <p>
             In the replication phase, the reference workstation provided the complete source state: RHEL, filesystem layout, Cadence installation, users, groups, permissions, environment files, and network-related configuration. A Clonezilla deployment server provided the PXE boot environment and Clonezilla Live Lite workflow. Target machines booted over the network as PXE clients, entered the Clonezilla environment, and were intended to receive a disk-level deployment through multicast or raw/device-oriented restoration.
           </p>
+
+
           <ul>
             <li>Reference workstation: the validated source system containing the complete RHEL and Cadence environment.</li>
             <li>Deployment server: the Clonezilla Live Lite and PXE orchestration point responsible for distributing client instructions and the restoration workflow.</li>
@@ -325,20 +307,190 @@
           <p>
             I moved into a Clonezilla-based deployment workflow using PXE netboot and Clonezilla Live Lite. The intended deployment was network-driven: target workstations boot into Clonezilla over the network, receive client-side instructions, and restore the reference system at disk level. This approach is meant to preserve the operating system, filesystem, installed Cadence environment, users, permissions, configuration files, and other machine state rather than reinstalling individual packages by hand.
           </p>
-          <figure class="project-media media-center" style="--media-scale: 1; --media-height: 15rem;">
-		  <img src="../assets/clonezilla.png" alt="Flowchart">
-
-  <figcaption> High-Level Abstraction Diagram of Massive Deployment Workflow using Clonezilla Live Lite </figcaption>
-          </figure>
           <p>
             Scale shaped the design. Clonezilla massive deployment and multicast were investigated so multiple machines could receive the same source stream instead of transferring a full independent copy of the workstation state to each target. I also investigated raw/device-oriented deployment, including Clonezilla's <code>raw-psdo</code> pseudo-device representation, client-side <code>ocs-sr</code>, and the distinction between restoring from an image repository and restoring from a device-oriented source.
           </p>
+
+	  <br>
+
+<figure class="project-media media-right" style="--media-scale: 0.5; --media-height: 15rem;">
+		  <img src="../assets/clonezilla2.jpeg" >
+
+          </figure>
+
+
           <ul>
             <li>Manual RHEL and Cadence setup produced the validated reference workstation.</li>
             <li>Clonezilla Live Lite and PXE shifted the process from local installation to network boot and orchestration.</li>
             <li>Massive deployment and multicast addressed the need to distribute one workstation state across many machines.</li>
             <li>Raw/device-oriented restoration focused on reproducing the source disk state, not just copying application files.</li>
           </ul>
+
+	  <br> 
+
+<h3>Disk Cloning Approach</h3>
+
+<p>
+  There are several ways to replicate a configured workstation. The conventional
+  approach is to first create a Clonezilla disk image and store it on an external
+  drive or network-accessible storage. The storage medium must naturally have
+  sufficient capacity for the image being created, and the resulting image must
+  then be restored onto each target workstation.
+</p>
+
+<p>
+  While this approach works well for backup and one-off restoration, it introduces
+  an additional step for a large laboratory deployment: the reference workstation
+  must first be converted into an image, and that image must subsequently be
+  restored onto the client machines. Performing these operations independently for
+  thirty or more workstations would make the deployment unnecessarily slow and
+  operationally repetitive.
+</p>
+
+<p>
+  Instead, I used Clonezilla's <code>lite-server</code> mode to turn the already
+  configured reference workstation into the source for a massive-deployment
+  session. The target machines could boot a Clonezilla environment over the
+  network using PXE, join the deployment session, and receive the system directly
+  from the reference machine.
+</p>
+
+<p>
+  The important distinction here is that the workflow does not require creating
+  a conventional disk-image file containing the entire source disk beforehand.
+  Clonezilla supports massive deployment directly from a raw block device. In
+  this configuration, the source disk itself becomes the deployment source,
+  avoiding the intermediate image-creation and image-storage step.
+</p>
+
+
+<h3>Why use <code>raw-device</code>?</h3>
+
+<p>
+  The raw-device approach was particularly useful because the workstation being
+  deployed had already been completely configured and validated. Instead of
+  creating another representation of that disk and then restoring it, the
+  deployment process could operate directly on the source block device.
+</p>
+
+<p>
+  This allowed the validated workstation state to become the deployment source
+  without introducing a separate image-generation stage. The disk-level state
+  contained not only the RHEL installation, but also the configured filesystem
+  hierarchy, installed software, user and group configuration, ownership,
+  permissions, and the Cadence environment that had already been validated on
+  the reference machine.
+</p>
+
+<p>
+  For a laboratory containing many similarly configured workstations, this
+  changes the problem from repeatedly configuring individual machines into
+  reproducing one known-good system state across multiple targets.
+</p>
+
+
+<h3>What is <code>/home/partimag</code>?</h3>
+
+<p>
+  One slightly unintuitive part of the raw-device workflow is the presence of
+  <code>/home/partimag</code>. In a conventional Clonezilla imaging workflow,
+  this directory acts as the image repository: saved disk images and their
+  associated metadata are stored beneath it.
+</p>
+
+<p>
+  In the raw-device massive-deployment workflow, however, no conventional disk
+  image containing the complete source data is created. Clonezilla still uses
+  <code>/home/partimag</code> as its image-home location, but in this case the
+  repository is used for temporary deployment metadata rather than as a
+  container for a complete copy of the source disk.
+</p>
+
+<p>
+  This is why the repository can be backed by a RAM disk in the deployment
+  environment. The actual source data remains on the reference workstation's
+  block device; <code>/home/partimag</code> provides the filesystem location
+  expected by Clonezilla for the temporary information required to coordinate
+  the deployment.
+</p>
+
+
+<h3>PXE Boot and Client Initialization</h3>
+
+<p>
+  The target workstations were not manually booted from Clonezilla media one by
+  one. Instead, the machines used network booting through PXE. The client first
+  obtained its network configuration through DHCP and then loaded the required
+  Clonezilla boot environment from the deployment infrastructure.
+</p>
+
+<p>
+  PXE therefore serves a different purpose from the actual disk deployment. It
+  provides the mechanism for bringing each target machine into the Clonezilla
+  environment; once the client has booted, Clonezilla performs the disk-level
+  deployment operation.
+</p>
+
+
+<h3>Mass Deployment</h3>
+
+<p>
+  After the reference machine was prepared as the Clonezilla server, the target
+  workstations could be started through PXE and joined to the deployment session.
+  The deployment mechanism was configured for multiple clients rather than
+  treating each workstation as an independent cloning job.
+</p>
+
+<p>
+  This was the key transition from workstation configuration to infrastructure
+  deployment. The first machine required careful manual preparation and
+  validation, while the remaining machines could inherit the resulting system
+  state through the network-based deployment process.
+</p>
+
+
+          <figure class="project-media media-center" style="--media-scale: 1; --media-height: 15rem;">
+		  <img src="../assets/clonezilla.png" alt="Flowchart">
+
+  <figcaption> High-Level Abstraction Diagram of Massive Deployment Workflow using Clonezilla Live Lite </figcaption>
+          </figure>
+
+
+
+<h3>Deployment Sequence</h3>
+
+<ol>
+  <li>Configure and validate the reference RHEL workstation.</li>
+  <li>Boot the reference workstation into Clonezilla Live.</li>
+  <li>Start Clonezilla in <code>lite-server</code> mode.</li>
+  <li>Prepare the Clonezilla image-home environment at <code>/home/partimag</code>.</li>
+  <li>Select the source disk as a raw-device deployment source.</li>
+  <li>Start the massive-deployment service.</li>
+  <li>PXE-boot the target workstations over the laboratory LAN.</li>
+  <li>Allow the clients to join the deployment session.</li>
+  <li>Write the replicated disk state onto the target NVMe drives.</li>
+  <li>Reboot the clients and validate the resulting RHEL environment.</li>
+</ol>
+
+
+<h3>From Configuration to Replication</h3>
+
+<p>
+  The overall workflow therefore consisted of two distinct phases. The first
+  phase was <strong>configuration</strong>: building a single workstation until
+  the RHEL, user environment, filesystem permissions, Cadence installation, and
+  supporting configuration were known to work correctly. The second phase was
+  <strong>replication</strong>: using that validated workstation as the source
+  for deployment across the remaining laboratory systems.
+</p>
+
+<p>
+  This separation was important because it moved configuration errors into the
+  reference-machine stage, where they could be corrected once, rather than
+  allowing the same manual setup procedure to be repeated independently across
+  every workstation.
+</p>
+
         </div>
       </section>
 
@@ -483,9 +635,7 @@ Remaining clients
             The project has progressed from manual workstation configuration to a network-based deployment architecture. A standardized RHEL workstation environment was built around the Cadence toolchain, with supporting configuration for dependencies, shell initialization, networking, users, groups, permissions, and filesystem ownership.
           </p>
           <figure class="project-media media-center" style="--media-scale: 0.72; --media-height: 18rem;">
-            <div class="media-frame media-placeholder">
-              <!-- IMAGE PLACEHOLDER: Final intended deployment architecture / reproducible pipeline diagram -->
-            </div>
+		  <img src="../assets/clonezilla4.jpeg">
           </figure>
           <p>
             The replication phase is still being developed and debugged. Clonezilla Live Lite, PXE boot, massive deployment, multicast, raw/device-oriented restoration, <code>raw-psdo</code>, <code>ocs-client-run.conf</code>, and target block-device identification have been investigated as parts of the deployment pipeline. The current value of the work is not a fabricated claim that all machines have already been deployed; it is the movement from a validated reference workstation toward a reproducible deployment process, with the remaining technical problems isolated into firmware boot, orchestration, source representation, multicast behavior, and client-side storage identification.
