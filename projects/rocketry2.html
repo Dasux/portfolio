@@ -32,12 +32,10 @@
     <div class="toc-tree">
       <div class="toc-root">rocketry/</div>
       <a href="#overview">├── overview</a>
-      <a href="#architecture">├── architecture</a>
-      <a href="#hardware">├── hardware</a>
-      <a href="#software">├── software</a>
-      <a href="#challenges">├── challenges</a>
-      <a href="#results">├── results</a>
-      <a href="#lessons">└── lessons</a>
+      <a href="#purpose">├── purpose</a>
+      <a href="#progress">├── experimental progress</a>
+      <a href="#ongoing">├── ongoing work</a>
+      <a href="#future">└── future work</a>
     </div>
     <div class="toc-hint"><span>esc</span> close</div>
   </aside>
@@ -56,80 +54,168 @@
         </div>
         <div class="section-copy">
           <p>
-            What is this project about? <br><br>
-            This is an amateur rocketry project where I designed, built, and
-            launched experimental rockets equipped with custom telemetry systems.
-            The goal was to gather flight data and analyze rocket performance using
-            onboard sensors and a ground station. <br><br>
+            This is an early-stage amateur rocketry project focused on learning
+            through hardware development, propulsion testing, and flight
+            experimentation. The work so far has included several static-fire
+            motor tests and one rocket launch.
+          </p>
+          <p>
+            The propulsion work is still being characterized. The static-fire
+            results obtained so far have not yet demonstrated the level of
+            consistency and repeatability required for reliable characterization,
+            so motor manufacturing and test methods are still being improved.
+          </p>
+          <p>
+            The thrust-vector-control and control-system direction remains under
+            development. The system architecture, mathematical/control model,
+            controller implementation, flight electronics, and simulation work
+            have not yet reached a conclusive implementation.
           </p>
         </div>
       </section>
 
-      <section id="architecture" class="project-section">
+      <section id="purpose" class="project-section">
         <div class="section-heading">
           <span class="section-number">02</span>
-          <h2>System Architecture</h2>
+          <h2>Purpose and Motivation</h2>
         </div>
         <div class="section-copy">
-          <p>Explain data flow, subsystems, and control logic.</p>
+          <p>
+            The project exists as a practical way to study control systems and
+            electronics on a real physical platform. A rocket is a useful test
+            case because it combines mechanical construction, propulsion,
+            sensing, actuation, embedded electronics, and timing-sensitive
+            control decisions in one system.
+          </p>
+          <p>
+            The near-term value is not in claiming a completed flight-control
+            system, but in building the experimental foundation required to
+            understand one. The work is meant to connect theoretical topics such
+            as feedback, stability, sensor measurement, actuator response, and
+            real-time control to hardware that can eventually be tested and
+            validated.
+          </p>
+          <p>
+            The longer-term motivation is to develop the ability to design,
+            build, test, fly, and recover model rockets in a controlled and
+            repeatable way. That requires more than a single launch:
+            it requires consistent motor manufacturing, repeatable ground tests,
+            careful measurement, reliable electronics, and a control architecture
+            that has been modelled and validated before being trusted in flight.
+          </p>
+          <ul>
+            <li>Control systems and feedback behaviour.</li>
+            <li>Embedded electronics, sensors, and actuator integration.</li>
+            <li>Real-time measurement and control under physical constraints.</li>
+            <li>Repeatable propulsion testing and flight experimentation.</li>
+            <li>Gradual progress toward controlled and recoverable model-rocket flights.</li>
+          </ul>
         </div>
       </section>
 
-      <section id="hardware" class="project-section">
+      <section id="progress" class="project-section">
         <div class="section-heading">
           <span class="section-number">03</span>
-          <h2>Hardware</h2>
+          <h2>Experimental Progress</h2>
         </div>
         <div class="section-copy">
+          <p>
+            The current work is still in an experimental development phase. The
+            main completed activities are ground-based motor testing and one
+            initial launch, both of which are being used to expose practical
+            problems before more advanced control-system work is presented as a
+            finished result.
+          </p>
+
+          <h3>Static-Fire Testing</h3>
+          <p>
+            Several static-fire tests have been conducted to begin characterizing
+            the propulsion system. These tests are being used to investigate
+            ignition behaviour, motor operation, thrust production, burn
+            characteristics, repeatability, and consistency between manufactured
+            motors.
+          </p>
+          <p>
+            The static-fire results obtained so far have not yet demonstrated the
+            level of consistency and repeatability required for reliable
+            characterization. Because of that, the motor manufacturing process,
+            test setup, and measurement approach are still being improved before
+            the results are treated as a stable propulsion baseline.
+          </p>
           <ul>
-            <li>ESP32</li>
-            <li>IMU</li>
-            <li>LoRa</li>
+            <li>Number of tests: to be documented.</li>
+            <li>Motor configurations and manufacturing details: to be documented.</li>
+            <li>Thrust curves, burn times, and thrust estimates: to be added after review.</li>
+            <li>Anomalies, photographs, graphs, observations, and conclusions: to be added later.</li>
           </ul>
+          <!-- TODO: Add detailed static-fire test data, graphs, photographs, and observations here. -->
+
+          <h3>First Rocket Launch</h3>
+          <p>
+            One rocket launch has been conducted. This launch represents the
+            project's first transition from ground-based propulsion testing to an
+            actual flight experiment.
+          </p>
+          <p>
+            The launch is currently documented only at a high level because the
+            detailed flight report, configuration information, photographs, and
+            measurements still need to be added. No flight performance numbers
+            are being stated here until the underlying information is reviewed
+            and documented properly.
+          </p>
+          <ul>
+            <li>Launch date, location, and rocket configuration: to be added.</li>
+            <li>Motor used, flight duration, maximum altitude, and observations: to be added.</li>
+            <li>Recovery outcome, photographs or video, telemetry if available, and lessons learned: to be added.</li>
+          </ul>
+          <!-- TODO: Add detailed launch date, configuration, motor, location, flight observations, recovery outcome, media, telemetry, and lessons learned here. -->
         </div>
       </section>
 
-      <section id="software" class="project-section">
+      <section id="ongoing" class="project-section">
         <div class="section-heading">
           <span class="section-number">04</span>
-          <h2>Software</h2>
+          <h2>Ongoing Work</h2>
         </div>
         <div class="section-copy">
+          <p>
+            The project is currently moving from initial propulsion and flight
+            experimentation toward a more disciplined control-system development
+            process. This section is intentionally incomplete and will be
+            expanded as the work becomes better defined and validated.
+          </p>
           <ul>
-            <li>Firmware (C++)</li>
-            <li>Ground Station (Tkinter)</li>
-            <li>MATLAB Analysis</li>
+            <li>Improve motor manufacturing consistency.</li>
+            <li>Conduct additional static-fire tests.</li>
+            <li>Establish repeatable propulsion characteristics before relying on the motor model.</li>
+            <li>Develop the TVC control-system architecture and mathematical model.</li>
+            <li>Define actuator, sensor, electronics, simulation, and controller-development requirements.</li>
+            <li>Validate each subsystem experimentally before documenting it as a completed result.</li>
           </ul>
+          <!-- TODO: Expand this section as motor testing, TVC architecture, control modelling, electronics development, simulation, and validation work progress. -->
         </div>
       </section>
 
-      <section id="challenges" class="project-section">
+      <section id="future" class="project-section">
         <div class="section-heading">
           <span class="section-number">05</span>
-          <h2>Challenges</h2>
+          <h2>Future Work</h2>
         </div>
         <div class="section-copy">
-          <p>What went wrong, what you fixed, what you learned.</p>
-        </div>
-      </section>
-
-      <section id="results" class="project-section">
-        <div class="section-heading">
-          <span class="section-number">06</span>
-          <h2>Results</h2>
-        </div>
-        <div class="section-copy">
-          <p>Plots, telemetry, images, tests.</p>
-        </div>
-      </section>
-
-      <section id="lessons" class="project-section">
-        <div class="section-heading">
-          <span class="section-number">07</span>
-          <h2>What I Learned</h2>
-        </div>
-        <div class="section-copy">
-          <p>Growth section = recruiter bait.</p>
+          <p>
+            Future development will be documented here once the current
+            experimental work produces enough evidence to support a clearer
+            roadmap. The items below are directions for future work, not claims
+            of completed implementation.
+          </p>
+          <ul>
+            <li>Propulsion refinement and repeatable motor characterization.</li>
+            <li>TVC mechanism development and control-system modelling.</li>
+            <li>Flight computer, electronics, and sensor integration.</li>
+            <li>Closed-loop control development and simulation/validation work.</li>
+            <li>Additional flight testing and eventual controlled, recoverable flights.</li>
+          </ul>
+          <!-- TODO: Add a detailed future-work roadmap once the propulsion baseline, TVC model, electronics architecture, simulation approach, and validation plan are better established. -->
         </div>
       </section>
     </div>
