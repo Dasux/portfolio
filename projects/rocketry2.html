@@ -3,8 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Amateur Experimental Rocketry</title>
-  <link rel="stylesheet" href="project-style2.css">
+  <title>Model Rocketry: Implementing Thrust-Vector Control </title>
+ <link rel="stylesheet" href="project-style2.css">
+<script>
+window.MathJax = {
+  tex: {
+    packages: {
+      '[+]': ['mhchem']
+    },
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']]
+  },
+  svg: {
+    fontCache: 'global'
+  }
+};
+</script>
+
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
 </head>
 <body>
   <header class="site-header">
@@ -43,36 +61,57 @@
   <main class="project-container">
     <div class="project-intro">
       <div class="eyebrow"><span class="status-dot"></span>project documentation</div>
-      <h1>Amateur Experimental Rocketry</h1>
+      <h1>Model Rocketry: Implementing Thrust-Vector Control</h1>
     </div>
 
     <div class="project-sections">
-      <section id="overview" class="project-section project-section--featured">
-        <div class="section-heading">
-          <span class="section-number">01</span>
-          <h2>Overview</h2>
-        </div>
-        <div class="section-copy">
-          <p>
-            This is an early-stage amateur rocketry project focused on learning
-            through hardware development, propulsion testing, and flight
-            experimentation. The work so far has included several static-fire
-            motor tests and one rocket launch.
-          </p>
-          <p>
-            The propulsion work is still being characterized. The static-fire
-            results obtained so far have not yet demonstrated the level of
-            consistency and repeatability required for reliable characterization,
-            so motor manufacturing and test methods are still being improved.
-          </p>
-          <p>
-            The thrust-vector-control and control-system direction remains under
-            development. The system architecture, mathematical/control model,
-            controller implementation, flight electronics, and simulation work
-            have not yet reached a conclusive implementation.
-          </p>
-        </div>
-      </section>
+      
+<section id="overview" class="project-section project-section--featured">
+  <div class="section-heading">
+    <span class="section-number">01</span>
+    <h2>Overview</h2>
+  </div>
+
+  <div class="section-copy">
+    <p>
+      This project is an ongoing exploration of amateur rocketry, with the goal
+      of learning how to design, build, test, and eventually control a small
+      experimental rocket. Rather than treating the rocket as a single finished
+      product, the project is being developed as a collection of interconnected
+      engineering problems: propulsion, structures, electronics, sensing,
+      embedded systems, telemetry, and flight control.
+    </p>
+
+    <figure class="project-media media-center" style="--media-scale: 0.82; --media-height: 28rem;">
+      <img src="../assets/rocket1.jpeg" alt="Manthan 2">
+    </figure>
+
+    <p>
+      The work documented here covers the development process so far, from
+      building and testing rocket motors to assembling and launching an
+      experimental vehicle. Particular attention is given to the parts of the
+      system that still need to be understood and improved, rather than only
+      documenting the experiments that worked.
+    </p>
+
+    <p>
+      A major direction of the project is eventually to introduce active
+      thrust-vector control and use the rocket as a practical platform for
+      learning feedback control, embedded electronics, and flight dynamics.
+      That system is still under development, however, and the current stage of
+      the project is focused on establishing a reliable foundation through
+      propulsion testing, hardware development, and flight experimentation.
+    </p>
+
+    <p>
+      This documentation therefore follows the project as it develops: what was
+      built, why particular approaches were chosen, how the systems were tested,
+      what went wrong, and what those results changed about the next iteration.
+      The objective is not to present a finished rocket, but to document the
+      engineering process of gradually figuring out how to build one. All this was done under the guidance of <a href="https://www.linkedin.com/in/dr-venkat-chintala/">Dr. V. Chintala, Associate Professor, Associate Dean [R&D] GSV. </a>
+    </p>
+  </div>
+</section>
 
       <section id="purpose" class="project-section">
         <div class="section-heading">
@@ -81,35 +120,10 @@
         </div>
         <div class="section-copy">
           <p>
-            The project exists as a practical way to study control systems and
-            electronics on a real physical platform. A rocket is a useful test
-            case because it combines mechanical construction, propulsion,
-            sensing, actuation, embedded electronics, and timing-sensitive
-            control decisions in one system.
+	  I started this project back in August 2025, with the hopes of getting more clarity and hands-on exposure to electronics engineering. The courses taught in class weren't really hands-on and I couldn't shake the feeling of wanting to build something. So I deliberately chose a project that was out of my league, and hard to execute, something that involved interdisciplinary knowledge to perform -- so that I could learn all of engineering at once. Atleast that was the initial motivation, the other reason was -- rockets are <em>hot boy shit!</em> ... and I wanted to impress my college crush (jk!). [<em>i still havent asked her out...!</em>]
           </p>
-          <p>
-            The near-term value is not in claiming a completed flight-control
-            system, but in building the experimental foundation required to
-            understand one. The work is meant to connect theoretical topics such
-            as feedback, stability, sensor measurement, actuator response, and
-            real-time control to hardware that can eventually be tested and
-            validated.
-          </p>
-          <p>
-            The longer-term motivation is to develop the ability to design,
-            build, test, fly, and recover model rockets in a controlled and
-            repeatable way. That requires more than a single launch:
-            it requires consistent motor manufacturing, repeatable ground tests,
-            careful measurement, reliable electronics, and a control architecture
-            that has been modelled and validated before being trusted in flight.
-          </p>
-          <ul>
-            <li>Control systems and feedback behaviour.</li>
-            <li>Embedded electronics, sensors, and actuator integration.</li>
-            <li>Real-time measurement and control under physical constraints.</li>
-            <li>Repeatable propulsion testing and flight experimentation.</li>
-            <li>Gradual progress toward controlled and recoverable model-rocket flights.</li>
-          </ul>
+
+	  <p> What started as an attempt to get more hands-on exposure to electronics gradually became much larger than that. The project has since turned into an excuse to learn whatever the next problem demands, whether that means understanding propulsion, designing hardware, writing software, studying control systems, or simply figuring out why something I built refuses to work. </p>
         </div>
       </section>
 
@@ -128,13 +142,121 @@
           </p>
 
           <h3>Static-Fire Testing</h3>
+		<p>Initially we thought of purchasing commercially available motors. But they soon turned out to be very expensive, the most obvious reason was the fact that they were'nt locally manufactured in India. Brands like Estes are manufactured in Colorado, US. The shipping cost alone would cost more than the motors themselves. </p>
           <p>
-            Several static-fire tests have been conducted to begin characterizing
+	  So we decided to manufacture our own sugar motors. Since military grade propellants like APCP and HTPB arent readily available to small student groups, we went with the classic KNSu derivative propellants. Several static-fire tests have been conducted to begin characterizing
             the propulsion system. These tests are being used to investigate
             ignition behaviour, motor operation, thrust production, burn
             characteristics, repeatability, and consistency between manufactured
             motors.
           </p>
+<figure class="project-media media-right" style="--media-scale: 0.3; --media-height: 28rem;">
+      <img src="../assets/kno3.jpeg" alt="KNO3">
+      <figcaption>Me Flexing my newly purchased KNO3</figcaption>
+    </figure>
+    <br>
+
+<p>
+I ordered a bunch of KNO<sub>3</sub> bottles from an online store and some sugar from the local supermarket. The first few batches burned surprisingly well, but we quickly ran into a rather annoying problem: regular granulated sugar is made up of relatively large crystals, while KNO<sub>3</sub> is a separate crystalline solid. Simply mixing the two does not guarantee that the oxidizer and fuel are distributed uniformly throughout the mixture.
+</p>
+
+<p>
+This is where water became useful. We used it as a temporary solvent so that the sugar and KNO<sub>3</sub> could be dissolved and mixed much more uniformly. The important part, however, was that the water was only there to help with processing. It was not supposed to remain in the final material. Any significant amount of water left behind would act as an unwanted thermal load during ignition and could interfere with the consistency of combustion.
+</p>
+
+<p>
+So the process became a rather simple cycle: dissolve and mix the constituents, and then remove the water again before the material was used for testing. In other words, the water helped us make a more homogeneous mixture, but was not part of the propellant itself.
+</p>
+
+<p>
+The next problem was the sugar itself. Ordinary table sugar, or sucrose, is convenient because it is cheap and easy to obtain, but its relatively high melting behaviour and crystalline structure make it less convenient to process consistently. We therefore began looking at alternative fuels with properties more suitable for the process we were trying to develop.
+</p>
+
+<p>
+This led us to sorbitol. Unlike ordinary table sugar, sorbitol has different thermal and physical properties that make it more convenient to process as a fuel. The motivation was not simply to find something that "burns better", but to obtain a material whose preparation and combustion behaviour could be characterized more consistently between tests.
+</p>
+
+<p>
+At a high level, the combustion can be thought of as an oxidation reaction: the nitrate provides the oxidizing environment while the organic fuel provides the material being oxidized. Once ignition occurs, the reaction releases a large amount of heat and produces a mixture of hot gaseous products together with condensed solid products.
+</p>
+
+<div class="chemical-equation">
+\[
+{KNO_3 + C_6 H_{12} O_6 \; \rightarrow \; CO_2 + H_2O + N_2 + K_2CO3 + heat}
+\]
+</div>
+
+<p>
+One of the things we noticed during testing was that the combustion does not produce only gas. Some of the products remain condensed as solid residue, including potassium-containing compounds often referred to collectively as "potash" in this context. The amount and composition of this residue depend on the fuel, oxidizer balance, temperature, and combustion conditions.
+</p>
+
+<p>
+This became another reason for investigating sorbitol. Its different decomposition and combustion behaviour can change the balance between gaseous and condensed products compared with sucrose. For us, this mattered because residue is not just a cosmetic issue: condensed products represent material that does not contribute to the expanding gas flow, and excessive deposition can also complicate the interpretation and repeatability of motor tests.
+</p>
+
+<p>
+At this point, the purpose of the experiments was therefore becoming clearer. We were no longer simply trying to make something that burns. We were trying to understand how the choice of fuel, the homogeneity of the mixture, the processing method, and the resulting combustion products affected the repeatability of the motor.
+</p>
+
+
+ <h3>Casting Challanges</h3>
+
+   <figure class="project-media media-left" style="--media-scale: 0.3; --media-height: 28rem;">
+      <img src="../assets/motor1.jpeg" alt="KNSu">
+      <figcaption>One of our Initial Motors</figcaption>
+    </figure>
+
+
+
+<p>
+Cooking the propellant was the easy part -- the bigger problem was casting it into a motor casing before it cooled down. With sugar propellant, we had a very small working window: it cooled rapidly and began to harden within roughly 5--10 minutes. After around 15 minutes, the material became extremely hard, making it considerably more difficult to cast properly.
+</p>
+
+<br>
+
+<p>
+This was another area where sorbitol proved to be much easier to work with. Once heated, it remained workable for a considerably longer period before beginning to solidify, giving us more time to transfer the material into the casing and form the internal geometry properly. That extra working time made the casting process considerably less rushed and, more importantly, made it easier to produce repeatable motors.
+</p>
+
+<br>
+<p>
+We also wanted to keep the experimental setup as inexpensive as possible. Rather than buying purpose-built tubing for every iteration, we found a suitable piece of PVC tubing in a local scrapyard and repurposed it as the motor casing for our early ground tests. It was a small decision, but these are exactly the kinds of compromises that made the project financially practical while we were still in the experimental phase.
+</p>
+
+<br>
+
+    <figure class="project-media media-right" style="--media-scale: 0.3; --media-height: 28rem;">
+      <img src="../assets/core.jpeg" alt="Motor Core">
+      <figcaption>Close-up of the Motor Core</figcaption>
+    </figure>
+<p>
+The most critical part of the casting process, however, was not the casing itself -- it was the <b>core</b>. The core determines the internal geometry of the propellant grain and therefore has a direct influence on how much surface area is exposed during combustion. That geometry affects how the motor burns throughout its operating period, so getting the core wrong could make an otherwise good propellant batch behave very differently from the previous test.
+</p>
+
+
+<br>
+<p> The core was made by inserting a metal rod in the propellant mixture while it was soft and yeilding, and removing it once it had dried. The challenge here was getting the rod out of the mix without forming an adhesive layer with the propellant mixture. 
+This meant that casting was not simply a matter of filling a tube and waiting for it to cool. We had to pay attention to the internal geometry as well, because consistency in the grain geometry was just as important as consistency in the propellant itself. At this point, we were beginning to realise that making a motor was less about producing one successful burn and more about being able to reproduce the same physical conditions from one test to the next.
+</p>
+
+<br>
+
+
+<h3>Solid-Motor Thrust-test Rig</h3>
+
+    <figure class="project-media media-left" style="--media-scale: 0.2; --media-height: 28rem;">
+      <img src="../assets/test-stand.jpeg" alt="Motor test stand">
+      <figcaption>Test stand after a paint-job</figcaption>
+    </figure>
+<p>
+We decided to build a custom motor testing rig. Went out to the local metal manufacturing workshops in town and got ourselves a huge 20ft GI bar. We custom cut the bar and my good friend Aman welded the parts into a beautiful cube. 
+</p>
+
+<p>I had more fun doing the mechanical part with my friend rather than the part I was supposed to --- Electronics. So I finally decided to give it a shot. A simple ESP32 -- WiFi -- GUI setup to remotely ignite the motor from a safe distance. </p>
+
+<br>
+
+
           <p>
             The static-fire results obtained so far have not yet demonstrated the
             level of consistency and repeatability required for reliable
@@ -142,13 +264,18 @@
             test setup, and measurement approach are still being improved before
             the results are treated as a stable propulsion baseline.
           </p>
-          <ul>
-            <li>Number of tests: to be documented.</li>
-            <li>Motor configurations and manufacturing details: to be documented.</li>
-            <li>Thrust curves, burn times, and thrust estimates: to be added after review.</li>
-            <li>Anomalies, photographs, graphs, observations, and conclusions: to be added later.</li>
-          </ul>
           <!-- TODO: Add detailed static-fire test data, graphs, photographs, and observations here. -->
+
+	  <br>
+<figure class="project-media media-right" style="--media-scale: 0.6; --media-height: 28rem;">
+      <img src="../assets/gcs_flowchart.png" alt="GCS Flowchart">
+      <figcaption>GCS Flowchart Working Model</figcaption>
+    </figure>
+
+    <br>
+
+    <h3>Ground Control Station and Test Rig </h3>
+
 
           <h3>First Rocket Launch</h3>
           <p>
