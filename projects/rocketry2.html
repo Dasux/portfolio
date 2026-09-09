@@ -141,7 +141,7 @@ window.MathJax = {
             finished result.
           </p>
 
-          <h3>Static-Fire Testing</h3>
+          <h3>Casting the Propellant</h3>
 		<p>Initially we thought of purchasing commercially available motors. But they soon turned out to be very expensive, the most obvious reason was the fact that they were'nt locally manufactured in India. Brands like Estes are manufactured in Colorado, US. The shipping cost alone would cost more than the motors themselves. </p>
           <p>
 	  So we decided to manufacture our own sugar motors. Since military grade propellants like APCP and HTPB arent readily available to small student groups, we went with the classic KNSu derivative propellants. Several static-fire tests have been conducted to begin characterizing
@@ -362,7 +362,16 @@ We decided to build a custom motor testing rig. Went out to the local metal manu
     </p>
 
     <h3>MOSFET Switching Stage</h3>
+<figure class="project-media media-left" style="--media-scale: 0.6; --media-height: 28rem;">
+      <img src="../assets/mosfet.png" alt="MOSFET">
+      <figcaption>N-Channel MOSFET Structure</figcaption>
+    </figure>
+<figure class="project-media media-right" style="--media-scale: 0.4; --media-height: 28rem;">
+      <img src="../assets/mosfet_working.png" alt="MOSFET">
+      <figcaption>MOSFET Switching Stage</figcaption>
+    </figure>
 
+    <br>
     <p>
       The actual ignition path is powered from a <strong>12 V supply</strong>,
       with the IRLZ44N configured as a <strong>low-side switch</strong>.
@@ -370,28 +379,7 @@ We decided to build a custom motor testing rig. Went out to the local metal manu
       MOSFET drain, while the MOSFET source is connected to ground.
     </p>
 
-    <div class="circuit-block">
-      <pre><code>
-                         +12 V
-                           │
-                           │
-                    [ Ignition Load ]
-                           │
-                           │
-                         Drain
-                      ┌─────────┐
-ESP32 GPIO ──[220 Ω]──┤  Gate   │
-                      │ IRLZ44N │
-                      │         │
-                      │ Source  │
-                      └────┬────┘
-                           │
-                          GND
-
-              Gate ──[10 kΩ]── GND
-      </code></pre>
-    </div>
-
+   
     <p>
       When the ESP32 GPIO is driven <strong>HIGH</strong>, approximately
       3.3 V is applied to the MOSFET gate. Since the source is connected to
@@ -399,10 +387,7 @@ ESP32 GPIO ──[220 Ω]──┤  Gate   │
       MOSFET to enter its conducting state.
     </p>
 
-    <figure class="project-media media-center" style="--media-scale: 0.6; --media-height: 28rem;">
-      <img src="../assets/mosfet.png" alt="MOSFET">
-      <figcaption>N-Channel MOSFET Structure</figcaption>
-    </figure>
+    
     <p>
       The 12 V current can then flow through the ignition load, into the drain
       of the MOSFET, through the MOSFET channel and finally to ground. The
@@ -471,7 +456,10 @@ ESP32 GPIO ──[220 Ω]──┤  Gate   │
       The buck converter provides this regulated supply rather than attempting
       to connect the microcontroller directly to the 12 V source.
     </p>
-
+<figure class="project-media media-center" style="--media-scale: 0.7; --media-height: 28rem;">
+      <img src="../assets/remote_prototype.png" alt="Remote Prototype">
+      <figcaption>First Prototype of the Motor Ignition Board</figcaption>
+    </figure>
     <p>
       This becomes especially relevant in a system where the ignition load can
       produce comparatively large changes in current. Keeping the controller
@@ -548,17 +536,19 @@ ESP32 GPIO ──[220 Ω]──┤  Gate   │
       design.
     </p>
 
+  <figure class="project-media media-center" style="--media-scale: 0.8; --media-height: 28rem;">
+      <img src="../assets/schematic.png" alt="Schematic Diagram">
+      <figcaption>Schematic Diagram of the Motor Ignition Board</figcaption>
+    </figure>
+
     <h3>From Remote Ignition to a Ground Control System</h3>
 
     <p>
       Although the first version of the system is fundamentally an ignition
       controller, the architecture deliberately leaves room for expansion.
       The laptop provides the operator interface, the ESP32 acts as the
-      embedded controller, and the MOSFET forms the power-switching interface
-      to the test article.
-    </p>
-
-    <p>
+      embedded controller, and the MOSFET forms the power-switching interface to the test article.
+    
       Once this communication and control chain exists, additional
       instrumentation can be built around it. The same embedded controller
       can eventually be used to collect system status, sensor measurements and
@@ -586,9 +576,7 @@ ESP32 GPIO ──[220 Ω]──┤  Gate   │
       chain from <strong>operator command → wireless communication → embedded
       control → power switching → physical ignition</strong>, while keeping
       the operator physically separated from the ignition hardware.
-    </p>
-
-    <p>
+    
       That gives the project a foundation for the next stage: repeatable
       static-fire testing, instrumentation and eventually the development of
       the flight electronics and control system.
