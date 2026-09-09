@@ -267,15 +267,332 @@ We decided to build a custom motor testing rig. Went out to the local metal manu
           <!-- TODO: Add detailed static-fire test data, graphs, photographs, and observations here. -->
 
 	  <br>
-<figure class="project-media media-right" style="--media-scale: 0.6; --media-height: 28rem;">
-      <img src="../assets/gcs_flowchart.png" alt="GCS Flowchart">
-      <figcaption>GCS Flowchart Working Model</figcaption>
-    </figure>
+
 
     <br>
 
     <h3>Ground Control Station and Test Rig </h3>
+<p>
+      Before attempting to extract meaningful data from a rocket motor, there is
+      a much more basic problem to solve: <em>how do we operate the motor safely
+      in the first place?</em>
+    </p>
 
+    <p>
+      A static-fire test allows the motor to be restrained on the ground while
+      its behaviour is observed without actually launching the vehicle. This
+      makes it an extremely useful stage of development, but it also introduces
+      an important requirement: the ignition system needs to be reliable and,
+      more importantly, it needs to be operated from a safe distance.
+    </p>
+
+    <p>
+      A traditional manual ignition arrangement places the operator relatively
+      close to the test hardware and makes the exact moment of ignition dependent
+      on a human action. The first electronics system developed for the project
+      therefore focused on something relatively simple but fundamental:
+      <strong>a remotely controlled ignition system for static motor testing.</strong>
+    </p>
+
+    <br>
+    <h3>System Architecture</h3>
+
+    <p>
+      The ignition system was built around an
+      <strong>ESP32 microcontroller</strong>. The ESP32 provides the wireless
+      interface between the operator's laptop and the electronics at the test
+      stand. An ignition command is sent over Wi-Fi to the ESP32, which then
+      generates the control signal required to activate the ignition circuit.
+    </p>
+
+    <br>
+    <p>
+      The ESP32 does not directly carry the current required by the ignition
+      load. Instead, an <strong>IRLZ44N logic-level N-channel MOSFET</strong>
+      is used as the interface between the low-power digital electronics and
+      the higher-current 12 V ignition circuit.
+    </p>
+
+    <br>
+
+    <figure class="project-media media-right" style="--media-scale: 0.6; --media-height: 28rem;">
+      <img src="../assets/gcs_flowchart.png" alt="GCS Flowchart">
+      <figcaption>GCS Flowchart Working Model</figcaption>
+    </figure>
+    <p>
+      The resulting architecture can be thought of as a simple chain:
+    </p>
+
+    <div class="code-block">
+      <pre><code>Laptop → Wi-Fi → ESP32 → MOSFET → Ignition Load</code></pre>
+    </div>
+
+    <br>
+    <p>
+      This separation is important. The ESP32 is responsible for the
+      <em>control decision</em>, while the MOSFET is responsible for actually
+      switching the ignition current. In other words, the microcontroller acts
+      as the control layer rather than being asked to handle the power required
+      by the igniter.
+    </p>
+
+    <h3>ESP32 Control Unit</h3>
+
+    <p>
+      The ESP32 was selected primarily because it provides built-in Wi-Fi
+      connectivity without requiring a separate wireless communication module.
+      This allowed the ground station to communicate directly with the
+      controller while keeping the electronics at the test stand relatively
+      compact.
+    </p>
+
+    <p>
+      At the control level, the ESP32 receives the ignition command and
+      translates it into a GPIO output. The intended controller architecture
+      also provides room for additional functions such as arming logic,
+      ignition timing, telemetry and OTA firmware updates.
+    </p>
+
+    <p>
+      This is useful because the ignition circuit was not being treated as an
+      isolated, one-off circuit. It was designed as the beginning of a larger
+      embedded test platform. Once communication between the ground station and
+      the controller exists, information can eventually travel in the opposite
+      direction as well — for example, sensor measurements and system status.
+    </p>
+
+    <h3>MOSFET Switching Stage</h3>
+
+    <p>
+      The actual ignition path is powered from a <strong>12 V supply</strong>,
+      with the IRLZ44N configured as a <strong>low-side switch</strong>.
+      The ignition load is connected between the positive supply and the
+      MOSFET drain, while the MOSFET source is connected to ground.
+    </p>
+
+    <div class="circuit-block">
+      <pre><code>
+                         +12 V
+                           │
+                           │
+                    [ Ignition Load ]
+                           │
+                           │
+                         Drain
+                      ┌─────────┐
+ESP32 GPIO ──[220 Ω]──┤  Gate   │
+                      │ IRLZ44N │
+                      │         │
+                      │ Source  │
+                      └────┬────┘
+                           │
+                          GND
+
+              Gate ──[10 kΩ]── GND
+      </code></pre>
+    </div>
+
+    <p>
+      When the ESP32 GPIO is driven <strong>HIGH</strong>, approximately
+      3.3 V is applied to the MOSFET gate. Since the source is connected to
+      ground, this produces a positive gate-to-source voltage, causing the
+      MOSFET to enter its conducting state.
+    </p>
+
+    <figure class="project-media media-center" style="--media-scale: 0.6; --media-height: 28rem;">
+      <img src="../assets/mosfet.png" alt="MOSFET">
+      <figcaption>N-Channel MOSFET Structure</figcaption>
+    </figure>
+    <p>
+      The 12 V current can then flow through the ignition load, into the drain
+      of the MOSFET, through the MOSFET channel and finally to ground. The
+      electrical path is therefore completed and the ignition load is
+      activated.
+    </p>
+
+    <p>
+      When the GPIO returns <strong>LOW</strong>, the conductive channel
+      disappears and the drain-to-source path opens again. The ignition current
+      therefore stops.
+    </p>
+
+    <h3>Gate Control and Default-Off Behaviour</h3>
+
+    <p>
+      There are two small components around the MOSFET gate that are easy to
+      overlook but are important to the behaviour of the switching stage:
+      a <strong>220 Ω series resistor</strong> and a
+      <strong>10 kΩ pull-down resistor</strong>.
+    </p>
+
+    <p>
+      The 220 Ω resistor is placed between the ESP32 GPIO and the MOSFET gate.
+      A MOSFET gate behaves electrically like a capacitive load, meaning that
+      changing its voltage involves charging and discharging that capacitance.
+      The series resistor limits the instantaneous current associated with
+      those transitions and provides some isolation between the ESP32 GPIO and
+      the MOSFET gate.
+    </p>
+
+    <p>
+      The 10 kΩ resistor is connected from the gate to ground. Its purpose is
+      to establish a defined default state for the MOSFET. During ESP32
+      startup, reset or any situation where the GPIO is not actively driving
+      the gate, the pull-down ensures that the gate is held LOW rather than
+      being left floating.
+    </p>
+
+    <p>
+      For an ignition system, this is particularly important. An undefined
+      GPIO state is not merely a software inconvenience when that GPIO controls
+      an ignition circuit. The desired behaviour is therefore deliberately
+      simple:
+    </p>
+
+    <div class="highlight-box">
+      <p>
+        <strong>No valid control signal → MOSFET OFF → Ignition path open.</strong>
+      </p>
+    </div>
+
+    <h3>Power Regulation</h3>
+
+    <p>
+      The control electronics require a lower regulated voltage than the
+      12 V supply used by the ignition path. A <strong>buck converter</strong>
+      is therefore used to step the available supply voltage down to the level
+      required by the ESP32 and associated electronics.
+    </p>
+
+    <p>
+      Separating these electrical domains is an important part of the design.
+      The 12 V supply is associated primarily with the ignition side of the
+      system, while the ESP32 operates from a regulated lower-voltage rail.
+      The buck converter provides this regulated supply rather than attempting
+      to connect the microcontroller directly to the 12 V source.
+    </p>
+
+    <p>
+      This becomes especially relevant in a system where the ignition load can
+      produce comparatively large changes in current. Keeping the controller
+      supplied through a dedicated regulated rail helps prevent disturbances
+      on the power side from directly becoming disturbances on the logic side.
+    </p>
+
+    <h3>Supply Decoupling and Capacitors</h3>
+
+    <p>
+      One of the less glamorous parts of the circuit is also one of the things
+      that becomes surprisingly important once the circuit is actually built:
+      <strong>decoupling</strong>.
+    </p>
+
+    <p>
+      The design includes a <strong>470 µF electrolytic capacitor</strong>
+      as a bulk capacitor on the supply rail. Its purpose is to provide a
+      local reservoir of stored charge for relatively larger or slower changes
+      in current demand.
+    </p>
+
+    <p>
+      The reason for using an electrolytic capacitor here is its comparatively
+      large capacitance. A 470 µF capacitor can store considerably more charge
+      than the small ceramic capacitors normally used for high-frequency
+      decoupling. It can therefore help support transient current demand and
+      reduce the magnitude of sudden voltage disturbances on the supply rail.
+    </p>
+
+    <p>
+      A smaller <strong>ceramic capacitor</strong> serves a different purpose.
+      It might initially seem redundant to place two capacitors on the same
+      supply rail, but the two components are useful because capacitors do not
+      behave ideally across all frequencies.
+    </p>
+
+    <p>
+      The large electrolytic capacitor is good at providing bulk energy
+      storage, but its larger physical construction and parasitic properties
+      make it less effective at suppressing very fast, high-frequency
+      disturbances. A small ceramic capacitor, on the other hand, has much
+      lower parasitic inductance and is much better suited to dealing with
+      these rapid transients.
+    </p>
+
+    <p>
+      In practical terms, the two capacitors complement each other:
+    </p>
+
+    <ul>
+      <li>
+        <strong>470 µF electrolytic:</strong> bulk energy storage and
+        lower-frequency supply stabilization.
+      </li>
+      <li>
+        <strong>Ceramic capacitor:</strong> high-frequency decoupling close
+        to the electronics.
+      </li>
+    </ul>
+
+    <p>
+      The ceramic capacitor should be placed physically close to the power
+      pins of the device or supply rail being decoupled, keeping the electrical
+      loop between the capacitor, supply and ground as short as practical.
+      The larger electrolytic capacitor can be positioned nearby on the same
+      supply rail where it can provide the required bulk capacitance.
+    </p>
+
+    <p>
+      The exact value of the ceramic capacitor is not specified in the current
+      project documentation, so it is intentionally not stated here rather
+      than assigning a value that was not actually part of the documented
+      design.
+    </p>
+
+    <h3>From Remote Ignition to a Ground Control System</h3>
+
+    <p>
+      Although the first version of the system is fundamentally an ignition
+      controller, the architecture deliberately leaves room for expansion.
+      The laptop provides the operator interface, the ESP32 acts as the
+      embedded controller, and the MOSFET forms the power-switching interface
+      to the test article.
+    </p>
+
+    <p>
+      Once this communication and control chain exists, additional
+      instrumentation can be built around it. The same embedded controller
+      can eventually be used to collect system status, sensor measurements and
+      other telemetry alongside the ignition event.
+    </p>
+
+    <p>
+      This is the direction in which the test rig can eventually evolve:
+      instead of simply sending an ignition command, the ground station can
+      become the central interface for the entire static test. The operator
+      could eventually monitor the state of the test hardware while the
+      controller handles the low-level interaction with the electronics.
+    </p>
+
+    <p>
+      This distinction is important for the overall rocketry project. The test
+      rig is not intended to be the final flight computer. It is a
+      <strong>ground-based experimental platform</strong> that allows the
+      propulsion system and its electronics to be exercised under controlled
+      conditions before more complicated flight electronics are introduced.
+    </p>
+
+    <p>
+      At this stage, the important achievement is establishing a reliable
+      chain from <strong>operator command → wireless communication → embedded
+      control → power switching → physical ignition</strong>, while keeping
+      the operator physically separated from the ignition hardware.
+    </p>
+
+    <p>
+      That gives the project a foundation for the next stage: repeatable
+      static-fire testing, instrumentation and eventually the development of
+      the flight electronics and control system.
+    </p>
 
           <h3>First Rocket Launch</h3>
           <p>
