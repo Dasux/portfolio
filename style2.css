@@ -429,6 +429,70 @@ section:nth-child(even) {
     object-position: center;
 }
 
+/* Project Status */
+.project-status {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 5px 10px;
+
+    background: rgba(10, 10, 10, 0.75);
+    backdrop-filter: blur(8px);
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50px;
+
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+
+    color: var(--text-secondary);
+
+    z-index: 2;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Ongoing */
+.project-status.ongoing .status-dot {
+    background: #00ff88;
+    box-shadow: 0 0 8px rgba(0, 255, 136, 0.7);
+}
+
+.project-status.ongoing {
+    color: #00ff88;
+}
+
+/* Completed */
+.project-status.completed .status-dot {
+    background: #ffd43b;
+    box-shadow: 0 0 8px rgba(255, 212, 59, 0.6);
+}
+
+.project-status.completed {
+    color: #ffd43b;
+}
+
+/* Planned */
+.project-status.planned .status-dot {
+    background: #ff4d4d;
+    box-shadow: 0 0 8px rgba(255, 77, 77, 0.6);
+}
+
+.project-status.planned {
+    color: #ff4d4d;
+}
+
 
 .project-category {
     background: rgba(0,0,0,0.7);
