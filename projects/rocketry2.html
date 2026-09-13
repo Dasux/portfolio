@@ -656,56 +656,257 @@ We decided to build a custom motor testing rig. Went out to the local metal manu
       </div>
       </section>
 
-          <section id="ongoing" class="project-section">
-        <div class="section-heading">
-          <span class="section-number">05</span>
-          <h2>First Rocket Launch</h2>
-	</div>
-        <div class="section-copy">
-          <p>
-            One rocket launch has been conducted. This launch represents the
-            project's first transition from ground-based propulsion testing to an
-            actual flight experiment.
-          </p>
-          <p>
-            The launch is currently documented only at a high level because the
-            detailed flight report, configuration information, photographs, and
-            measurements still need to be added. No flight performance numbers
-            are being stated here until the underlying information is reviewed
-            and documented properly.
-          </p>
-          <ul>
-            <li>Launch date, location, and rocket configuration: to be added.</li>
-            <li>Motor used, flight duration, maximum altitude, and observations: to be added.</li>
-            <li>Recovery outcome, photographs or video, telemetry if available, and lessons learned: to be added.</li>
-          </ul>
-          <!-- TODO: Add detailed launch date, configuration, motor, location, flight observations, recovery outcome, media, telemetry, and lessons learned here. -->
-        </div>
-      </section>
+<section id="launch" class="project-section">
+  <div class="section-heading">
+    <span class="section-number">05</span>
+    <h2>First Rocket Launch</h2>
+  </div>
 
-      <section id="ongoing" class="project-section">
-        <div class="section-heading">
-          <span class="section-number">06</span>
-          <h2>Ongoing Work</h2>
-        </div>
-        <div class="section-copy">
-          <p>
-            The project is currently moving from initial propulsion and flight
-            experimentation toward a more disciplined control-system development
-            process. This section is intentionally incomplete and will be
-            expanded as the work becomes better defined and validated.
-          </p>
-          <ul>
-            <li>Improve motor manufacturing consistency.</li>
-            <li>Conduct additional static-fire tests.</li>
-            <li>Establish repeatable propulsion characteristics before relying on the motor model.</li>
-            <li>Develop the TVC control-system architecture and mathematical model.</li>
-            <li>Define actuator, sensor, electronics, simulation, and controller-development requirements.</li>
-            <li>Validate each subsystem experimentally before documenting it as a completed result.</li>
-          </ul>
-          <!-- TODO: Expand this section as motor testing, TVC architecture, control modelling, electronics development, simulation, and validation work progress. -->
-        </div>
-      </section>
+  <div class="section-copy">
+
+    <p>
+      After the initial propulsion and static-fire experiments, the project
+      reached its first flight test. One experimental rocket was launched at
+      Ajwa Lake, Vadodara, marking the project's transition from ground-based
+      motor testing to an actual flight experiment.
+    </p>
+
+    <p>
+      The launch took place at approximately <strong>12:00 PM -- 2:00 PM</strong>
+      at <strong>Ajwa Lake, Vadodara, Gujarat</strong>
+      (<a href="https://maps.app.goo.gl/BDZ9ff9wJ9jcM4uC7" target="_blank">
+      launch location</a>).
+    </p>
+
+    <h3>Flight Configuration</h3>
+
+<figure class="project-media media-right" style="--media-scale: 0.3; --media-height: 28rem;">
+      <img src="../assets/rocket2.jpeg" alt="Rocket Weight">
+      <figcaption>Estimate weight before laungh = 998gms</figcaption>
+    </figure>
+    <p>
+      The rocket used for the flight was approximately
+      <strong>47 cm</strong> long. The propulsion system used a
+      <strong>KNSU-based solid propellant</strong> with a documented
+      composition of approximately <strong>65% / 35%</strong>.
+      The propellant mass was approximately <strong>274 g</strong>.
+    </p>
+
+    <p>
+      The measured rocket mass was approximately
+      <strong>724 g dry</strong> and <strong>998 g wet</strong>.
+      The centre of gravity was measured at approximately
+      <strong>25.3 cm</strong>, while the centre of pressure was at
+      approximately <strong>30.3 cm</strong>, giving a calculated stability
+      margin of approximately <strong>1.05 calibres</strong>.
+    </p>
+
+    <div class="highlight-box">
+      <p>
+        <strong>47 cm rocket &nbsp;|&nbsp; 917 g wet mass
+        &nbsp;|&nbsp; 1.05 cal stability margin</strong>
+      </p>
+    </div>
+
+    <h3>Launch Sequence</h3>
+
+    <p>
+      The flight was intended to be initiated using the project's remotely
+      controlled firing system. During the launch attempt, the
+      <strong>ESP32 successfully connected to Wi-Fi and indicated activity
+      through its status LED</strong>, but the firing relay did not actuate.
+      As a result, the intended OTA firing sequence did not operate as
+      expected.
+    </p>
+
+    <p>
+      The cause of the relay failure was not immediately identified and is
+      currently being investigated. This is being treated as an electronics
+      fault rather than being attributed to the wireless connection itself,
+      since the ESP32 successfully established its Wi-Fi connection.
+    </p>
+
+    <h3>What Went Wrong</h3>
+    <h4>Mechanical Issues</h4>
+
+    <p>
+      A mechanical problem was also identified with the launch setup. The
+      <strong>launch lug was not sufficiently stable and was visibly
+      slanting</strong>. This introduced an additional source of uncertainty
+      into the initial trajectory.
+    </p>
+
+    <p>
+      The launch stand was also not perfectly vertical. A possible consequence
+      is that the rocket may have left the launch guide with a small initial
+      angular deviation. Since the launch stand and launch lug establish the
+      rocket's initial direction of travel, even a relatively small alignment
+      error can become significant once the vehicle begins accelerating.
+    </p>
+
+    <h4>Flight Behaviour</h4>
+
+    <p>
+      The rocket deviated from its expected trajectory during flight.
+      At present, the exact cause cannot be established from the available
+      observations alone. Several contributing factors are considered
+      plausible.
+    </p>
+
+    <ul>
+      <li>
+        The launch stand may not have been perfectly vertical, introducing
+        an initial trajectory error.
+      </li>
+      <li>
+        The launch lug was mechanically unstable and slanted, potentially
+        affecting the vehicle's initial guidance along the launch rail/rod.
+      </li>
+      <li>
+        Wind was directed approximately towards the lake and may have
+        influenced the vehicle's trajectory after leaving the launch guide.
+      </li>
+      <li>
+        The motor configuration did not use a nozzle, meaning the thrust
+        behaviour was not equivalent to that of a properly configured
+        rocket motor and may have contributed to unpredictable thrust
+        characteristics.
+      </li>
+    </ul>
+
+    <p>
+      These factors should not be treated as independently confirmed causes.
+      The current flight data is insufficient to determine how much each
+      factor contributed to the observed deviation. The flight is therefore
+      being treated as a diagnostic experiment rather than as a validated
+      demonstration of controlled flight.
+    </p>
+
+    <h4>Recovery</h4>
+
+    <p>
+      Recovery was <strong>unsuccessful</strong>. The vehicle was not recovered
+      after the flight, so post-flight inspection of the rocket, motor,
+      structural components, and electronics was not possible.
+    </p>
+
+
+    <figure class="project-media media-center" style="--media-scale: 0.82; --media-height: 28rem;">
+      <img src="../assets/map.png" alt="map">
+      <figcaption>Launch Location</figcaption>
+    </figure>
+
+    <p>
+    One big reason was that we launched the rocket near the lake itself. Althought we were about 300m away from the water, our initial guess was way off the charts owing to my inexperience in this field. The rocket went straight towards the water. I had a hypothesis, about land breeze, <em>"..maybe the wind pushed it towards the lake.."</em> I thought. But land breeze occurs during the night. During the day, you get sea/lake-breeze which flows from the water body towards land. So that rules out. <br> However, our proximity to the lake was one of the reasons we failed at recovering the projectile. 
+    </p>
+
+
+    <h3>Scope for Improvement</h3>
+
+    <figure class="project-media media-right" style="--media-scale: 0.4; --media-height: 28rem;">
+  <img src="../assets/rocket3.jpeg">
+  <figcaption>New Rocket on a Launch Rig</figcaption>
+</figure>
+
+    <p>
+      The next iteration will focus on making the experimental platform more
+      reliable before attempting another flight.
+    </p>
+
+    <ul>
+      <li>
+        <strong>Firing electronics:</strong> diagnose the relay failure and
+        redesign the power-distribution system so that the control electronics
+        and firing hardware have a reliable and well-defined power path.
+      </li>
+
+      <li>
+        <strong>Launch infrastructure:</strong> build a substantially more
+        rigid launch stand and ensure that the launch guide remains properly
+        aligned and vertical during operation.
+      </li>
+
+      <li>
+        <strong>Launch lug:</strong> improve the mechanical attachment and
+        stability of the launch lug so that it does not introduce avoidable
+        alignment errors.
+      </li>
+
+      <li>
+        <strong>Motor configuration:</strong> develop and test a properly
+        configured motor with a nozzle before relying on the propulsion system
+        for subsequent flight experiments.
+      </li>
+
+      <li>
+        <strong>Adding a GPS:</strong> this is not even a rookie mistake, and I'm embarassed that I didnt do this earlier. But a GPS is a must when launching ballistic projectiles into the sky. 
+      </li>
+    </ul>
+
+    <p>
+      This first launch therefore did not produce the successful recovery or
+      controlled flight that was originally hoped for. It did, however, expose
+      several real system-level problems that were difficult to identify from
+      isolated bench and static-fire tests. The next stage of the project is
+      consequently focused on fixing those fundamentals before introducing
+      more advanced flight-control systems.
+    </p>
+
+  </div>
+</section>
+
+      
+<section id="ongoing" class="project-section">
+  <div class="section-heading">
+    <span class="section-number">06</span>
+    <h2>Ongoing Work</h2>
+  </div>
+
+  <div class="section-copy">
+
+<figure class="project-media media-right" style="--media-scale: 0.4; --media-height: 28rem;">
+  <img src="../assets/tvc_rocket1.jpeg">
+  <figcaption>Work In Progress of TVC Rocket</figcaption>
+</figure>
+    <p>
+      The project is currently moving from initial propulsion and flight
+      experimentation toward a more disciplined control-system development
+      process. The next phase focuses on improving flight reliability,
+      introducing onboard avionics, and developing the groundwork required
+      for active flight control.
+    </p>
+
+<ul>
+  <li>Improve motor manufacturing consistency.</li>
+  <li>Conduct additional static-fire tests.</li>
+  <li>Establish repeatable propulsion characteristics before relying on the motor model.</li>
+  <li>Develop the TVC control-system architecture and mathematical model.</li>
+  <li>Define actuator, sensor, electronics, simulation, and controller-development requirements.</li>
+  <li>Validate each subsystem experimentally before documenting it as a completed result.</li>
+</ul>
+
+<h3>TVC Simulation Rig</h3>
+
+<p>
+  In parallel with the flight-test work, we are developing a dedicated
+  simulation rig for the future thrust-vector-control system. The rig will
+  provide a controlled environment for developing and tuning the flight
+  controller without requiring a full rocket flight for every iteration.
+</p>
+
+<p>
+  The current objective is to use the rig to study the response of the
+  actuator system, tune servo-motor behaviour, and develop the PID control
+  loop that will eventually form part of the TVC controller. Further
+  details on the mechanical arrangement, sensing, controller architecture,
+  and experimental methodology will be documented as the rig develops.
+</p>
+
+
+
+
+  </div>
+</section>
 
       <section id="future" class="project-section">
         <div class="section-heading">
@@ -713,6 +914,13 @@ We decided to build a custom motor testing rig. Went out to the local metal manu
           <h2>Future Work</h2>
         </div>
         <div class="section-copy">
+
+
+		<br>
+<figure class="project-media media-left" style="--media-scale: 0.4; --media-height: 28rem;">
+  <img src="../assets/rig.jpeg">
+  <figcaption>TVC Rig</figcaption>
+</figure>
           <p>
             Future development will be documented here once the current
             experimental work produces enough evidence to support a clearer

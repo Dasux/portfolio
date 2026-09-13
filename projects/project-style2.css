@@ -427,6 +427,14 @@ h2 {
   border: 1px solid var(--line);
 }
 
+.project-media video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  background: #000;
+}
+
 .media-placeholder::before,
 .image-placeholder::before {
   padding: 0 1.5rem;
