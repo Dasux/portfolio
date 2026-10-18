@@ -14,10 +14,10 @@
         <div class="nav-container">
             <a href="#home" class="nav-logo">ANIRBAN DAS</a>
             <ul class="nav-menu">
-                <li><a href="#about">About</a></li>
                 <li><a href="#projects">Projects</a></li>
+                <li><a href="#about-extended">About</a></li>
+                <li><a href="#skills">Skills</a></li>
                 <li><a href="field_notes/notes.html">Field Notes</a></li>
-                <li><a href="#">Resume</a></li>
             </ul>
         </div>
     </nav>
@@ -34,14 +34,14 @@
 </p>
             <div class="hero-buttons">
                 <a href="#projects" class="btn btn-primary">View Projects</a>
-                <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+                <a href="#about-extended" class="btn btn-secondary">Get In Touch</a>
             </div>
         </div>
-        
-<p class="hero-links-label">Find me on</p>
 
-<div class="hero-links">
-        
+    <p class="hero-links-label">Find me on</p>
+
+    <div class="hero-links">
+
 
     <a href="https://github.com/Dasux" target="_blank" aria-label="GitHub">
         <span class="icon-wrap">
@@ -72,38 +72,6 @@
 
     </section>
 
-    <!-- About Section -->
-    <section id="about" class="about">
-        <div class="container">
-            <h2 class="section-title">About Me</h2>
-            <div class="about-grid">
-<div class="about-text">
-    <p>
-        I'm an electronics undergraduate based in Vadodara, interested in
-        building systems at the intersection of electronics, software, and aerospace.
-    </p>
-
-    <p>
-        I work with embedded systems, Linux, Python, microcontrollers, and hardware,
-        with a particular interest in flight computers, experimental rocketry,
-        FPGA design, and systems engineering.
-    </p>
-
-    <p>
-        This website documents the projects I build, the experiments I run,
-        and the things I learn along the way—from Linux system deployment
-        and automation to electronics and software for experimental aerospace projects.
-    </p>
-</div>
-                
-<div class="about-image">
-    <img src="assets/me_2.jpeg" alt="Profile photo" class="profile-image">
-</div>
-
-            </div>
-        </div>
-    </section>
-
     <!-- Projects Section -->
     <section id="projects" class="projects">
         <div class="container">
@@ -114,10 +82,10 @@
 
                         <div class="project-image">
                             <img src="assets/test_rig.jpeg" alt="Amateur experimental rocketry test rig">
-			 <div class="project-status ongoing">
-			    <span class="status-dot"></span>
-			    Ongoing
-			</div>
+				 <div class="project-status ongoing">
+				    <span class="status-dot"></span>
+				    Ongoing
+				</div>
                         </div>
                         <div class="project-content">
                             <h3>Experimental Model Rocketry</h3>
@@ -138,10 +106,10 @@
                     <div class="project-card">
                         <div class="project-image">
                             <img src="assets/manthan2_2.jpeg" alt="RHEL massive deployment project">
-			    <div class="project-status completed">
-			    <span class="status-dot"></span>
-			    Completed
-			</div>
+				    <div class="project-status completed">
+				    <span class="status-dot"></span>
+				    Completed
+				</div>
                         </div>
                         <div class="project-content">
                             <h3>RHEL Massive Deployment</h3>
@@ -152,7 +120,6 @@
                                 <span>Cadence EDA</span>
                                 <span>Clonezilla</span>
                                 <span>Disk Cloning</span>
-                                <span>Massive Deployment</span>
                                 <span>Network Boot</span>
                             </div>
                         </div>
@@ -174,6 +141,61 @@
                     </div>
                 </div>
                             </div> -->
+            </div>
+        </div>
+    </section>
+
+    <!-- About Me + Resume + Selected Repositories Section -->
+    <section id="about-extended" class="about-extended">
+        <div class="container">
+            <h2 class="section-title">About Me</h2>
+            <p class="about-me-copy">
+                Final-year B.Tech Electronics and Communication Engineering student at GSV Vadodara
+                interested in electronics, embedded systems, Linux, digital design, and aerospace engineering.
+                This portfolio documents projects in experimental rocketry, Linux system deployment,
+                and electronic systems development.
+            </p>
+            <div class="about-columns">
+                <div class="repositories-column">
+                    <div class="repository-card">
+                        <h3>Experimental Model Rocketry</h3>
+                        <p>A hobby scale solid-propellant model rocket with payload capacity of upto 500gms. Thrust-Vector Controlled flight computer development in progress.</p>
+                        <div class="repo-tags">
+                            <span>ESP32</span>
+                            <span>Tkinter</span>
+                            <span>MATLAB</span>
+                            <span>Solid Propellant Casting</span>
+                            <span>OpenRocket</span>
+                            <span>OpenMotor</span>
+                        </div>
+                        <a href="https://github.com/Dasux/blog" target="_blank" rel="noreferrer" aria-label="Source Code">Source Code</a>
+                    </div>
+
+                    <div class="repository-card">
+                        <h3>RHEL Massive Deployment</h3>
+                        <p>Standardized 30+ RHEL workstations for Cadence EDA workflows, configuring hosts, users, GIDs, permissions, C-shell environments, networking, and reproducible system images.</p>
+                        <div class="repo-tags">
+                            <span>RHEL 8.7</span>
+                            <span>Linux</span>
+                            <span>Cadence EDA</span>
+                            <span>Clonezilla</span>
+                            <span>Disk Cloning</span>
+                            <span>Network Boot</span>
+                        </div>
+                        <a href="https://github.com/Dasux/Cadence-RTL-to-GDSII-Flow" target="_blank" rel="noreferrer" aria-label="Source Code">Source Code</a>
+                    </div>
+                </div>
+                <div class="resume-column">
+                    <div class="resume-card">
+                        <h3>Resume Preview</h3>
+                        <p>Professional resume detailing academic background, project experience, and technical skills in electronics, embedded systems, and aerospace engineering.</p>
+                        <!-- Link would point to actual resume when available -->
+                        <a href="https://github.com/Dasux" target="_blank" rel="noreferrer" aria-label="View GitHub Profile">View Profile</a>
+                        <div class="resume-preview-overlay">
+                            Resume Preview
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -202,50 +224,21 @@
                         <span>C/C++</span>
                         <span>Python</span>
                         <span>Bash</span>
-			<span>Linux</span>
-			<span>ROS2</span>
-			<span>Gazebo</span>
+				<span>Linux</span>
+				<span>ROS2</span>
+				<span>Gazebo</span>
                     </div>
                 </div>
                 <div class="skill-category">
                     <h3>Engineering Tools</h3>
                     <div class="skill-tags">
-			<span>KiCad</span>
-			<span>OpenRocket</span>
-			<span>OpenMotor</span>
-			<span>Cadence</span>
-			<span>Clonezilla</span>
+				<span>KiCad</span>
+				<span>OpenRocket</span>
+				<span>OpenMotor</span>
+				<span>Cadence</span>
+				<span>Clonezilla</span>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <h2 class="section-title">Get in Touch.</h2>
-            <div class="contact-content">
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <h3>Email</h3>
-                        <p>anirban.das_btech23@gsv.ac.in</p>
-                    </div>
-                    <div class="contact-item">
-                        <h3>GitHub</h3>
-                        <p><a href="https://github.com/Dasux">@Dasux</a></p>
-                    </div>
-                    <div class="contact-item">
-                        <h3>Location</h3>
-                        <p>Vadodara, Gujarat</p>
-                    </div>
-                </div>
-                <form class="contact-form">
-                    <input type="text" placeholder="Your Name" required>
-                    <input type="email" placeholder="Your Email" required>
-                    <textarea placeholder="Your Message" rows="5" required></textarea>
-                    <button type="submit" class="btn btn-primary">Send Message</button>
-                </form>
             </div>
         </div>
     </section>
@@ -254,6 +247,10 @@
     <footer class="footer">
         <div class="container">
             <p>&#x1F12F; 2026 Anirban. All rights reversed.</p>
+            <div class="footer-links">
+                <a href="https://github.com/Dasux" target="_blank" aria-label="GitHub">GitHub</a>
+                <a href="https://www.linkedin.com/in/anirban-das-1783492b6/" target="_blank" aria-label="LinkedIn">LinkedIn</a>
+            </div>
         </div>
     </footer>
 
